@@ -3,13 +3,19 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Archives: 2016/8 | Whiteshadow&#39;s Blog</title>
+  <title>搭建一个简单的博客 Lesson 1.1 | Whiteshadow&#39;s Blog</title>
   <meta name="author" content="Whiteshadow">
+  
+  <meta name="description" content="初始化了一个工程项目学习环境Node.js ： 4.4.7
+Express ： 4.13.4
+MongoDB ： 3.2.8
+
+新建一个工程在命令行中输入：123$ mkdir -p workspace/blog &amp;amp;&amp;amp; cd workspace/blog$ express -e mi">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  
+  <meta property="og:title" content="搭建一个简单的博客 Lesson 1.1"/>
   <meta property="og:site_name" content="Whiteshadow&#39;s Blog"/>
 
   
@@ -143,105 +149,130 @@
   	<div class="content">
     	 
 
-<!-- title -->
-<div class="page-header page-header-inverse ">
-  <h1 class="archive-title title title-inverse ">2016/8</h1>
+
+	
+		<div class="page-header page-header-inverse ">		
+			<h1 class="title title-inverse "> 搭建一个简单的博客 Lesson 1.1</h1>
+		</div>		
+	
+
+
+
+
+
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div id="top_meta"></div>
+	<div class="col-md-9">
+	
+
+	<!-- content -->
+	<div class="mypage">		
+	  		
+
+	  <h2 id="初始化了一个工程项目"><a href="#初始化了一个工程项目" class="headerlink" title="初始化了一个工程项目"></a>初始化了一个工程项目</h2><h4 id="学习环境"><a href="#学习环境" class="headerlink" title="学习环境"></a>学习环境</h4><blockquote><p>Node.js ： 4.4.7</p>
+<p>Express ： 4.13.4</p>
+<p>MongoDB ： 3.2.8</p>
+</blockquote>
+<h4 id="新建一个工程"><a href="#新建一个工程" class="headerlink" title="新建一个工程"></a>新建一个工程</h4><p>在命令行中输入：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ mkdir -p workspace/blog &amp;&amp; <span class="built_in">cd</span> workspace/blog</div><div class="line">$ express <span class="_">-e</span> microblog</div><div class="line">$ <span class="built_in">cd</span> microblog &amp;&amp; npm install</div></pre></td></tr></table></figure></p>
+<p>初始化一个 express 项目并安装所需模块，如下所示：<br><blockquote><p>create : microblog<br>create : microblog/package.json<br>create : microblog/app.js<br>create : microblog/public<br>create : microblog/public/images<br>create : microblog/public/javascripts<br>create : microblog/routes<br>create : microblog/routes/index.js<br>create : microblog/routes/users.js<br>create : microblog/views<br>create : microblog/views/index.ejs<br>create : microblog/views/error.ejs<br>create : microblog/public/stylesheets<br>create : microblog/public/stylesheets/style.css<br>create : microblog/bin<br>create : microblog/bin/www</p>
+<p>install dependencies:<br>  $ cd microblog &amp;&amp; npm install</p>
+<p>run the app:<br>  $ DEBUG=microblog:* npm start</p>
+</blockquote></p>
+<p>然后运行：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ DEBUG=microblog:* npm start</div></pre></td></tr></table></figure></p>
+<p>在浏览器里访问 localhost:3000，如下图所示：<br><img src="/img/blog/1.2.jpg" alt=""></p>
+<p>至此，我们用 express 初始化了一个工程项目，并指定使用 ejs 模板引擎，下一节我们讲解工程的内部结构。</p>
+	  
+	</div>
+
+	<div>
+  	<center>
+	<div class="pagination">
+<ul class="pagination">
+	 
+		
+          <li class="prev disabled"><a><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
+        
+
+        <li><a href="/archives"><i class="fa fa-archive"></i>Archive</a></li>
+
+		
+		   <li class="next"><a href="/2016/08/05/hello-world/" class="alignright next">Next<i class="fa fa-arrow-circle-o-right"></i></a></li>         
+        
+	
+</ul>
 </div>
 
-<div class="row page">
-  <!-- cols -->
+    </center>
+	</div>
+
+    <!-- share -->
+    
+        
+    <div class="bdsharebuttonbox">
+        <a href="#" class="bds_more" data-cmd="more"></a>
+        <a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+        <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+        <a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+        <a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+        <a href="#" class="bds_linkedin" data-cmd="linkedin" title="分享到linkedin"></a>
+        <a href="#" class="bds_evernotecn" data-cmd="evernotecn" title="分享到印象笔记"></a>
+        <a href="#" class="bds_youdao" data-cmd="youdao" title="分享到有道云笔记"></a>
+        <a href="#" class="bds_copy" data-cmd="copy" title="分享到复制网址"></a>
+    </div>
+    <script>
+        window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"24"},"share":{}};
+        with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+    </script>
+
+
+        
+
+    
+	
+	<!-- comment -->
+	
+<section id="comment">
+  <h2 class="title">Comments</h2>
+
   
-  <div class="col-md-9">
+</section>
+
+	</div> <!-- col-md-9/col-md-12 -->
+		
+	
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2016-08-08 
+	</div>
 	
 
-	  <div id="top_search"></div>
-
-	  <div class="archive">
-		
-		
-		
-			
-			
-			<h4 class="archive-ul" data-toggle="collapse" data-target="#2016">2016<b class="caret"></b></h4>
-			<ul id="2016" class="collapse in">
-			
-		
-		<li class="listing-item">
-		<span class="date_class"> 2016-08-08 </span> &raquo;
-		
-		   <span class="title"><a href="/2016/08/08/搭建一个简单的博客 Lesson 1.1/" >搭建一个简单的博客 Lesson 1.1</a></span>
-		
-		</li>			
-		
-		
-		
-		<li class="listing-item">
-		<span class="date_class"> 2016-08-05 </span> &raquo;
-		
-		   <span class="title"><a href="/2016/08/05/hello-world/" >Hello World</a></span>
-		
-		</li>			
-		
-		</ul>
-		</div>
-
-</div> <!-- col-md-9/col-md-12 -->
-
-
-<div class="col-md-3">
-	<div id="sidebar">
-	
-			
-  <div id="site_search">
-   <div class="form-group">
-    <input type="text" id="local-search-input" name="q" results="0" placeholder="Search" class="st-search-input st-default-search-input form-control"/>
-   </div>  
-  <div id="local-search-result"></div>
-  </div>
-
-
-		
-			
-		
-			
-
-		
-			
-<div class="widget">
-  <h4>Recent Posts</h4>
-  <ul class="entry list-unstyled">
+	<!-- categories -->
     
-      <li>
-        <a href="/2016/08/08/搭建一个简单的博客 Lesson 1.1/" ><i class="fa fa-file-o"></i>搭建一个简单的博客 Lesson 1.1</a>
-      </li>
-    
-      <li>
-        <a href="/2016/08/05/hello-world/" ><i class="fa fa-file-o"></i>Hello World</a>
-      </li>
-    
-  </ul>
-</div>
 
+	<!-- tags -->
 		
-			
-<div class="widget">
-	<h4>Links</h4>
-	<ul class="blogroll list-unstyled">
-	
-		<li><i class="fa fa-github"></i><a href="https://github.com/wzpan/freemind/" title="Freemind's Github repository." target="_blank"]);">Freemind</a></li>
-	
-		<li><i class="fa fa-github"></i><a href="http://www.github.com/wzpan" title="My Github account." target="_blank"]);">My Github</a></li>
-	
-		<li><i class="fa fa-linkedin"></i><a href="http://www.linkedin.com/in/hahack" title="My Linkin account." target="_blank"]);">My LinkedIn</a></li>
-	
-	</ul>
-</div>
 
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
 
+	</div>
 		
-	</div> <!-- sidebar -->
-</div> <!-- col-md-3 -->
 
+</div><!-- row -->
 
 
 
