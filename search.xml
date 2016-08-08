@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title><![CDATA[搭建一个简单的博客 Lesson 1.2]]></title>
+      <url>http://yoursite.com/2016/08/08/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8D%9A%E5%AE%A2-Lesson-1-2/</url>
+      <content type="html"><![CDATA[<h2 id="搭建多人博客"><a href="#搭建多人博客" class="headerlink" title="搭建多人博客"></a>搭建多人博客</h2><h4 id="功能分析"><a href="#功能分析" class="headerlink" title="功能分析"></a>功能分析</h4><p>搭建一个简单的具有多人注册、登录、发表文章、登出功能的博客。</p>
+<h4 id="设计目标"><a href="#设计目标" class="headerlink" title="设计目标"></a>设计目标</h4><blockquote><p>未登录： 主页导航显示 home、login、register，主体区显示已发表的文章、发表日期及作者。</p>
+<p>登陆后： 主页导航显示 home、post、logout，主体区显示已发表的文章、发表日期及作者。</p>
+<p>用户登录、注册、发表成功以及登出后都返回到主页。</p>
+</blockquote>
+<p>未登录：</p>
+<p>主页：<br><img src="/img/blog/1.3.png" alt=""></p>
+<p>登录页：<br><img src="/img/blog/1.4.png" alt=""></p>
+<p>注册页：<br><img src="/img/blog/1.5.png" alt=""></p>
+<h4 id="路由规划"><a href="#路由规划" class="headerlink" title="路由规划"></a>路由规划</h4><p>我们已经把设计的构想图贴出来了，接下来的任务就是完成路由规划了。路由规划，或者说控制器规划是整个网站的骨架部分，因为它处于整个架构的枢纽位置，相当于各个接口之间的粘合剂，所以应该优先考虑。</p>
+<ul>
+<li>根据构思的设计图，我们作以下路由规划：<blockquote><p>/ ：首页<br>/login ：用户登录<br>/reg ：用户注册<br>/post ：发表文章<br>/logout ：登出</p>
+</blockquote>
+</li>
+</ul>
+<p>我们要求 <strong> /login </strong> 和 <strong> /reg </strong> 只能是未登录的用户访问，而 <strong> /post </strong> 和 <strong> /logout </strong> 只能是已登录的用户访问。左侧导航列表则针对已登录和未登录的用户显示不同的内容。</p>
+<ul>
+<li>修改 index.js 如下：<blockquote><p>module.exports = function(app) {<br>  app.get(‘/‘, function (req, res) {<br>    res.render(‘index’, { title: ‘主页’ });<br>  });<br>  app.get(‘/reg’, function (req, res) {<br>    res.render(‘reg’, { title: ‘注册’ });<br>  });<br>  app.post(‘/reg’, function (req, res) {<br>  });<br>  app.get(‘/login’, function (req, res) {<br>    res.render(‘login’, { title: ‘登录’ });<br>  });<br>  app.post(‘/login’, function (req, res) {<br>  });<br>  app.get(‘/post’, function (req, res) {<br>    res.render(‘post’, { title: ‘发表’ });<br>  });<br>  app.post(‘/post’, function (req, res) {<br>  });<br>  app.get(‘/logout’, function (req, res) {<br>  });<br>};</p>
+</blockquote>
+如何针对已登录和未登录的用户显示不同的内容呢？或者说如何判断用户是否已经登陆了呢？进一步说如何记住用户的登录状态呢？我们通过引入会话（session）机制记录用户登录状态，还要访问数据库来保存和读取用户信息。下一节我们将学习如何使用数据库。</li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[搭建一个简单的博客 Lesson 1.1]]></title>
       <url>http://yoursite.com/2016/08/08/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8D%9A%E5%AE%A2%20Lesson%201.1/</url>
       <content type="html"><![CDATA[<h2 id="初始化了一个工程项目"><a href="#初始化了一个工程项目" class="headerlink" title="初始化了一个工程项目"></a>初始化了一个工程项目</h2><h4 id="学习环境"><a href="#学习环境" class="headerlink" title="学习环境"></a>学习环境</h4><blockquote><p>Node.js ： 4.4.7</p>
