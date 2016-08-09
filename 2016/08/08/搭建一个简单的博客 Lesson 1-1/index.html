@@ -3,15 +3,19 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Hello World | Whiteshadow&#39;s Blog</title>
+  <title>搭建一个简单的博客 Lesson 1.1 | Whiteshadow&#39;s Blog</title>
   <meta name="author" content="Whiteshadow">
   
-  <meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in ">
+  <meta name="description" content="初始化了一个工程项目学习环境Node.js ： 4.4.7
+Express ： 4.13.4
+MongoDB ： 3.2.8
+
+新建一个工程在命令行中输入：123$ mkdir -p workspace/blog &amp;amp;&amp;amp; cd workspace/blog$ express -e mi">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="Hello World"/>
+  <meta property="og:title" content="搭建一个简单的博客 Lesson 1.1"/>
   <meta property="og:site_name" content="Whiteshadow&#39;s Blog"/>
 
   
@@ -148,7 +152,7 @@
 
 	
 		<div class="page-header page-header-inverse ">		
-			<h1 class="title title-inverse "> Hello World</h1>
+			<h1 class="title title-inverse "> 搭建一个简单的博客 Lesson 1.1</h1>
 		</div>		
 	
 
@@ -168,15 +172,18 @@
 	<div class="mypage">		
 	  		
 
-	  <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+	  <h2 id="初始化了一个工程项目"><a href="#初始化了一个工程项目" class="headerlink" title="初始化了一个工程项目"></a>初始化了一个工程项目</h2><h4 id="学习环境"><a href="#学习环境" class="headerlink" title="学习环境"></a>学习环境</h4><blockquote><p>Node.js ： 4.4.7</p>
+<p>Express ： 4.13.4</p>
+<p>MongoDB ： 3.2.8</p>
+</blockquote>
+<h4 id="新建一个工程"><a href="#新建一个工程" class="headerlink" title="新建一个工程"></a>新建一个工程</h4><p>在命令行中输入：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ mkdir -p workspace/blog &amp;&amp; <span class="built_in">cd</span> workspace/blog</div><div class="line">$ express <span class="_">-e</span> microblog</div><div class="line">$ <span class="built_in">cd</span> microblog &amp;&amp; npm install</div></pre></td></tr></table></figure></p>
+<p>初始化一个 express 项目并安装所需模块，如下所示：<br><blockquote><p>create : microblog<br>create : microblog/package.json<br>create : microblog/app.js<br>create : microblog/public<br>create : microblog/public/images<br>create : microblog/public/javascripts<br>create : microblog/routes<br>create : microblog/routes/index.js<br>create : microblog/routes/users.js<br>create : microblog/views<br>create : microblog/views/index.ejs<br>create : microblog/views/error.ejs<br>create : microblog/public/stylesheets<br>create : microblog/public/stylesheets/style.css<br>create : microblog/bin<br>create : microblog/bin/www</p>
+<p>install dependencies:<br>  $ cd microblog &amp;&amp; npm install</p>
+<p>run the app:<br>  $ DEBUG=microblog:* npm start</p>
+</blockquote></p>
+<p>然后运行：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ DEBUG=microblog:* npm start</div></pre></td></tr></table></figure></p>
+<p>在浏览器里访问 localhost:3000，如下图所示：<br><img src="/img/blog/1.2.jpg" alt=""></p>
+<p>至此，我们用 express 初始化了一个工程项目，并指定使用 ejs 模板引擎，下一节我们讲解工程的内部结构。</p>
 	  
 	</div>
 
@@ -186,13 +193,13 @@
 <ul class="pagination">
 	 
 				
-    	<li class="prev"><a href="/2016/08/08/搭建一个简单的博客 Lesson 1-1/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
+    	<li class="prev"><a href="/2016/08/08/搭建一个简单的博客-Lesson-1-2/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
   		
 
         <li><a href="/archives"><i class="fa fa-archive"></i>Archive</a></li>
 
 		
-          <li class="next disabled"><a>Next<i class="fa fa-arrow-circle-o-right"></i></a></li>
+		   <li class="next"><a href="/2016/08/05/hello-world/" class="alignright next">Next<i class="fa fa-arrow-circle-o-right"></i></a></li>         
         
 	
 </ul>
@@ -243,7 +250,7 @@
 	
 	<div class="meta-widget">
 	<i class="fa fa-clock-o"></i>
-	2016-08-05 
+	2016-08-08 
 	</div>
 	
 
