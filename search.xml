@@ -4,24 +4,136 @@
   
     
     <entry>
-      <title><![CDATA[搭建一个简单的博客-Lesson-1.4]]></title>
+      <title><![CDATA[搭建一个简单的博客 Lesson 1.4]]></title>
       <url>http://yoursite.com/2016/08/09/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8D%9A%E5%AE%A2-Lesson-1-4/</url>
-      <content type="html"><![CDATA[<h3 id="注册和登陆"><a href="#注册和登陆" class="headerlink" title="注册和登陆"></a>注册和登陆<hr></h3><p>我们已经准备好了数据库访问和会话的相关信息，接下来我们完成用户注册和登录功能。</p>
-<h4 id="页面设计"><a href="#页面设计" class="headerlink" title="页面设计"></a>页面设计</h4><p>首先我们来完成主页、登录页和注册页的页面设计。<br>修改 views/index.ejs 如下：</p>
-<p><pre class="default"><code class="default"><br>&lt;%- include header %&gt;<br>&lt;div class=”hero-unit”&gt;<br>  &lt;h1&gt;欢迎来到 简易博客&lt;/h1&gt;<br>  &lt;p&gt;简易博客 是一个基于 Node.js 的微博系统。&lt;/p&gt;<br>&lt;/div&gt;<br>&lt;%- include footer %&gt;<br></code></pre><br>在 views 文件夹下新建 header.ejs，添加如下代码：</p>
-<p><pre class="default"><code class="default"><br>&lt;!DOCTYPE html&gt;<br>&lt;html&gt;<br>  &lt;head&gt;<br>    &lt;meta charset=”utf-8”&gt;<br>    &lt;title&gt;&lt;%= title %&gt;&lt;/title&gt;<br>    &lt;link rel=”stylesheet” href=”/stylesheets/bootstrap.css”&gt;<br>    &lt;link rel=”stylesheet” href=”/stylesheets/style.css”&gt;<br>  &lt;/head&gt;<br>  &lt;body&gt;<br>    &lt;div class=”navbar navbar-fixed-top”&gt;<br>      &lt;div class=”navbar-inner”&gt;<br>        &lt;div class=”container”&gt;<br>          &lt;a class=”btn btn-navbar” data-toggle=”collapse” data-target=”.nav-collapse”&gt;<br>            &lt;span class=”icon-bar”&gt;&lt;/span&gt;<br>            &lt;span class=”icon-bar”&gt;&lt;/span&gt;<br>            &lt;span class=”icon-bar”&gt;&lt;/span&gt;<br>          &lt;/a&gt;<br>          &lt;a class=”brand” href=”/“&gt;简易博客&lt;/a&gt;<br>          &lt;div class=”nav-collapse”&gt;<br>            &lt;ul class=”nav”&gt;<br>              &lt;li class=”active”&gt;&lt;a href=”/“&gt;首页&lt;/a&gt;&lt;/li&gt;<br>              &lt;li&gt;&lt;a href=”/login”&gt;发表&lt;/a&gt;&lt;/li&gt;<br>              &lt;li&gt;&lt;a href=”/reg”&gt;登出&lt;/a&gt;&lt;/li&gt;<br>            &lt;/ul&gt;<br>          &lt;/div&gt;<br>        &lt;/div&gt;<br>      &lt;/div&gt;<br>    &lt;/div&gt;<br>    &lt;div id=”container” class=”container”&gt;<br></code></pre><br>新建 footer.ejs，添加如下代码：</p>
-<p><pre class="default"><code class="default"><br>      &lt;hr /&gt;<br>      &lt;footer&gt;<br>        &lt;p&gt;&lt;a href=”<a href="http://whshqy.github.io/" target="_blank" rel="external">http://whshqy.github.io/</a>“ target=”&#95;blank”&gt;White Shadow&lt;/a&gt; @ 2015&lt;/p&gt;<br>      &lt;/footer&gt;<br>    &lt;/div&gt;<br>  &lt;/body&gt;<br>  &lt;script src=”/javascripts/jquery.js”&gt;&lt;/script&gt;<br>  &lt;script src=”/javascripts/bootstrap.js”&gt;&lt;/script&gt;<br>&lt;/html&gt;<br></code></pre><br>修改 public/stylesheets/style.css 如下：</p>
-<p><pre class="default"><code class="default"><br>body {<br>  padding-top: 60px;<br>  padding-bottom: 40px;<br>}<br></code></pre><br>运行 app ，主页显示如下：<br><img src="/img/blog/1.3.png" alt=""><br>接下来在 views 文件夹下新建 login.ejs，内容如下：</p>
-<p><pre class="default"><code class="default"><br>&lt;%- include header %&gt;<br>&lt;form class=”form-horizontal” method=”post”&gt;<br>  &lt;fieldset&gt;<br>    &lt;legend&gt;用户登入&lt;/legend&gt;<br>    &lt;div class=”control-group”&gt;<br>      &lt;label class=”control-label” for=”username”&gt;用户名&lt;/label&gt;<br>      &lt;div class=”controls”&gt;<br>        &lt;input type=”text” class=”input-xlarge” id=”username” name=”username”&gt;<br>      &lt;/div&gt;<br>    &lt;/div&gt;<br>    &lt;div class=”control-group”&gt;<br>      &lt;label class=”control-label” for=”password”&gt;口令&lt;/label&gt;<br>      &lt;div class=”controls”&gt;<br>        &lt;input type=”password” class=”input-xlarge” id=”password” name=”password”&gt;<br>      &lt;/div&gt;<br>    &lt;/div&gt;<br>    &lt;div class=”form-actions”&gt;<br>      &lt;button type=”submit” class=”btn btn-primary”&gt;登入&lt;/button&gt;<br>    &lt;/div&gt;<br>  &lt;/fieldset&gt;<br>&lt;/form&gt;<br>&lt;%- include footer %&gt;<br></code></pre><br>登录页面显示如下：<br><img src="/img/blog/1.4.png" alt=""><br>在 views 文件夹下新建 reg.ejs，内容如下：</p>
-<p><pre class="default"><code class="default"><br>&lt;%- include header %&gt;<br>&lt;form class=”form-horizontal” method=”post”&gt;<br>  &lt;fieldset&gt;<br>    &lt;legend&gt;用户注册&lt;/legend&gt;<br>    &lt;div class=”control-group”&gt;<br>      &lt;label class=”control-label” for=”username”&gt;用户名&lt;/label&gt;<br>      &lt;div class=”controls”&gt;<br>        &lt;input type=”text” class=”input-xlarge” id=”username” name=”username”&gt;<br>        &lt;p class=”help-block”&gt;你的账户名称,用于登录和显示。&lt;/p&gt;<br>      &lt;/div&gt;<br>    &lt;/div&gt;<br>    &lt;div class=”control-group”&gt;<br>      &lt;label class=”control-label” for=”password”&gt;口令&lt;/label&gt;<br>      &lt;div class=”controls”&gt;<br>        &lt;input type=”password” class=”input-xlarge” id=”password” name=”password”&gt;<br>      &lt;/div&gt;<br>    &lt;/div&gt;<br>    &lt;div class=”control-group”&gt;<br>      &lt;label class=”control-label” for=”password-repeat”&gt;重复输入口令&lt;/label&gt;<br>      &lt;div class=”controls”&gt;<br>        &lt;input type=”password” class=”input-xlarge” id=”password-repeat” name=”password-repeat”&gt;<br>      &lt;/div&gt;<br>    &lt;/div&gt;<br>    &lt;div class=”control-group”&gt;<br>      &lt;label class=”control-label” for=”email”&gt;邮箱&lt;/label&gt;<br>      &lt;div class=”controls”&gt;<br>        &lt;input type=”text” class=”input-xlarge” id=”email” name=”email”&gt;<br>      &lt;/div&gt;<br>    &lt;/div&gt;<br>    &lt;div class=”form-actions”&gt;<br>      &lt;button type=”submit” class=”btn btn-primary”&gt;注册&lt;/button&gt;<br>    &lt;/div&gt;<br>  &lt;/fieldset&gt;<br>&lt;/form&gt;<br>&lt;%- include footer %&gt;<br></code></pre><br>注册页面显示如下：<br><img src="/img/blog/1.5.png" alt=""><br>至此，未登录时的主页、注册页、登录页都已经完成。</p>
-<p>现在，启动我们的博客看看吧。</p>
+      <content type="html"><![CDATA[<h3 id="注册和登陆"><a href="#注册和登陆" class="headerlink" title="注册和登陆"></a>注册和登陆<hr></h3><p>我们已经准备好了数据库访问和会话的相关信息，接下来我们完成用户注册和登录功能。<br><br></p>
+<h4 id="页面设计"><a href="#页面设计" class="headerlink" title="页面设计"></a>页面设计</h4><p><br>首先我们来完成主页、登录页和注册页的页面设计。</p>
+<p>修改 views/index.ejs 如下：</p>
+<pre class="default"><code class="default">
+&lt;%- include header %&gt;
+&lt;div class="hero-unit"&gt;
+  &lt;h1&gt;欢迎来到 简易博客&lt;/h1&gt;
+  &lt;p&gt;简易博客 是一个基于 Node.js 的微博系统。&lt;/p&gt;
+&lt;/div&gt;
+&lt;%- include footer %&gt;
+</code></pre>
+
+<p>在 views 文件夹下新建 header.ejs，添加如下代码：</p>
+<pre class="default"><code class="default">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;title&gt;&lt;%= title %&gt;&lt;/title&gt;
+    &lt;link rel="stylesheet" href="/stylesheets/bootstrap.css"&gt;
+    &lt;link rel="stylesheet" href="/stylesheets/style.css"&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;div class="navbar navbar-fixed-top"&gt;
+      &lt;div class="navbar-inner"&gt;
+        &lt;div class="container"&gt;
+          &lt;a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"&gt;
+            &lt;span class="icon-bar"&gt;&lt;/span&gt;
+            &lt;span class="icon-bar"&gt;&lt;/span&gt;
+            &lt;span class="icon-bar"&gt;&lt;/span&gt;
+          &lt;/a&gt;
+          &lt;a class="brand" href="/“&gt;简易博客&lt;/a&gt;
+          &lt;div class="nav-collapse"&gt;
+            &lt;ul class="nav"&gt;
+              &lt;li class="active"&gt;&lt;a href="/“&gt;首页&lt;/a&gt;&lt;/li&gt;
+              &lt;li&gt;&lt;a href="/login"&gt;发表&lt;/a&gt;&lt;/li&gt;
+              &lt;li&gt;&lt;a href="/reg"&gt;登出&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div id="container" class="container"&gt;
+</code></pre>
+
+<p>新建 footer.ejs，添加如下代码：</p>
+<pre class="default"><code class="default">
+      &lt;hr /&gt;
+      &lt;footer&gt;
+        &lt;p&gt;&lt;a href="http://whshqy.github.io/" target="&#95;blank"&gt;White Shadow&lt;/a&gt; @ 2015&lt;/p&gt;
+      &lt;/footer&gt;
+    &lt;/div&gt;
+  &lt;/body&gt;
+  &lt;script src="/javascripts/jquery.js"&gt;&lt;/script&gt;
+  &lt;script src="/javascripts/bootstrap.js"&gt;&lt;/script&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>修改 public/stylesheets/style.css 如下：</p>
+<pre class="default"><code class="default">
+body {
+  padding-top: 60px;
+  padding-bottom: 40px;
+}
+</code></pre>
+
+<p>登录页面显示如下：<br><img src="/img/blog/1.3.png" alt=""><br>在 views 文件夹下新建 reg.ejs，内容如下：</p>
+<pre class="default"><code class="default">
+&lt;%- include header %&gt;
+&lt;form class="form-horizontal" method="post"&gt;
+  &lt;fieldset&gt;
+    &lt;legend&gt;用户注册&lt;/legend&gt;
+    &lt;div class="control-group"&gt;
+      &lt;label class="control-label" for="username"&gt;用户名&lt;/label&gt;
+      &lt;div class="controls"&gt;
+        &lt;input type="text" class="input-xlarge" id="username" name="username"&gt;
+        &lt;p class="help-block"&gt;你的账户名称,用于登录和显示。&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="control-group"&gt;
+      &lt;label class="control-label" for="password"&gt;口令&lt;/label&gt;
+      &lt;div class="controls"&gt;
+        &lt;input type="password" class="input-xlarge" id="password" name="password"&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="control-group"&gt;
+      &lt;label class="control-label" for="password-repeat"&gt;重复输入口令&lt;/label&gt;
+      &lt;div class="controls"&gt;
+        &lt;input type="password" class="input-xlarge" id="password-repeat" name="password-repeat"&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="control-group"&gt;
+      &lt;label class="control-label" for="email"&gt;邮箱&lt;/label&gt;
+      &lt;div class="controls"&gt;
+        &lt;input type="text" class="input-xlarge" id="email" name="email"&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="form-actions"&gt;
+      &lt;button type="submit" class="btn btn-primary"&gt;注册&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/fieldset&gt;
+&lt;/form&gt;
+&lt;%- include footer %&gt;
+</code></pre>
+
+<p>注册页面显示如下：<br><img src="/img/blog/1.4.png" alt=""><br>至此，未登录时的主页、注册页、登录页都已经完成。</p>
+<p>现在，启动我们的博客看看吧。<br><br></p>
+<h4 id="页面通知"><a href="#页面通知" class="headerlink" title="页面通知"></a>页面通知</h4><p><br><br>接下来我们实现用户的注册和登陆，在这之前我们需要引入 flash 模块来实现页面通知（即成功与错误信息的显示）的功能。</p>
+<p>什么是<strong> flash? </strong></p>
+<p>我们所说的 flash 即 connect-flash 模块<a href="https://github.com/jaredhanson/connect-flash" target="_blank" rel="external">(https://github.com/jaredhanson/connect-flash)</a>，flash 是一个在 session 中用于存储信息的特定区域。信息写入 flash ，下一次显示完毕后即被清除。典型的应用是结合重定向的功能，确保信息是提供给下一个被渲染的页面。</p>
+<p>在命令行输入：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ npm install --save connect-flash</div></pre></td></tr></table></figure></p>
+<pre class="normal">安装 connect-flash 模块。修改 app.js ，在<code class="pale">var settings = require('./settings');</code></pre>
+<pre class="default"><code class="default">
+var flash = require('connect-flash');
+</code></pre>
+<pre class="normal">在<code class="pale">app.set('view engine', 'ejs');</code>后添加：</pre>
+<pre class="default"><code class="default">
+app.use(flash());
+</code></pre>
+
+<p>现在我们就可以使用 flash 功能了。</p>
 ]]></content>
     </entry>
     
     <entry>
-      <title><![CDATA[搭建一个简单的博客-Lesson-1.3]]></title>
+      <title><![CDATA[搭建一个简单的博客 Lesson 1.3]]></title>
       <url>http://yoursite.com/2016/08/09/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8D%9A%E5%AE%A2-Lesson-1-3/</url>
-      <content type="html"><![CDATA[<h3 id="使用数据库"><a href="#使用数据库" class="headerlink" title="使用数据库"></a>使用数据库</h3><h4 id="连接MongoDB"><a href="#连接MongoDB" class="headerlink" title="连接MongoDB"></a>连接MongoDB</h4><p>数据库虽然安装并启动成功了，但我们需要连接数据库后才能使用数据库。怎么才能在 Node.js 中使用 MongoDB 呢？我们使用官方提供的 node-mongodb-native 驱动模块，打开命令行，输入：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ npm install --save mongodb</div></pre></td></tr></table></figure></p>
+      <content type="html"><![CDATA[<h3 id="使用数据库"><a href="#使用数据库" class="headerlink" title="使用数据库"></a>使用数据库<hr></h3><h4 id="连接MongoDB"><a href="#连接MongoDB" class="headerlink" title="连接MongoDB"></a>连接MongoDB</h4><p><br>数据库虽然安装并启动成功了，但我们需要连接数据库后才能使用数据库。怎么才能在 Node.js 中使用 MongoDB 呢？我们使用官方提供的 node-mongodb-native 驱动模块，打开命令行，输入：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ npm install --save mongodb</div></pre></td></tr></table></figure></p>
 <p>稍等片刻后 mongodb 模块就下载并安装完成了。</p>
 <p>接下来在工程的根目录中创建 settings.js 文件，用于保存该博客工程的配置信息，比如数据库的连接信息。我们将数据库命名为 blog，因为数据库服务器在本地，所以 settings.js 文件的内容如下：</p>
 <pre class="default"><code class="default">
@@ -32,9 +144,8 @@ module.exports = {
   port: 27017
 };
 </code></pre>
-其中 db 是数据库的名称，host 是数据库的地址，port是数据库的端口号，cookieSecret 用于 Cookie 加密与数据库无关，我们留作后用。
 
-接下来在根目录下新建 models 文件夹，并在 models 文件夹下新建 db.js ，添加如下代码：
+<p>其中 db 是数据库的名称，host 是数据库的地址，port是数据库的端口号，cookieSecret 用于 Cookie 加密与数据库无关，我们留作后用。 接下来在根目录下新建 models 文件夹，并在 models 文件夹下新建 db.js ，添加如下代码：</p>
 <pre class="default"><code class="default">
 var settings = require('../settings'),
     Db = require('mongodb').Db,
@@ -42,22 +153,24 @@ var settings = require('../settings'),
     Server = require('mongodb').Server;
 module.exports = new Db(settings.db, new Server(settings.host, settings.port), {safe: true});
 </code></pre>
-其中通过<code class="pale">new Db(settings.db, new Server(settings.host, settings.port), {safe: true});</code>设置数据库名、数据库地址和数据库端口创建了一个数据库连接实例，并通过<code class="pale">module.exports</code>导出该实例。这样，我们就可以通过 require 这个文件来对数据库进行读写了。
-
-打开 app.js，在<code class="pale">var routes = require('./routes/index');</code>下添加：
+其中通过<code class="pale">new Db(settings.db, new Server(settings.host, settings.port), {safe: true});</code>设置数据库名、数据库地址和数据库端口创建了一个数据库连接实例，并通过<code class="pale">module.exports</code>导出该实例。这样，我们就可以通过 require 这个文件来对数据库进行读写了。 打开 app.js，在<code class="pale">var routes = require('./routes/index');</code>下添加：
 <pre class="default"><code class="default">
 var settings = require('./settings');
-</code></pre>
-
-<h4 id="会话支持"><a href="#会话支持" class="headerlink" title="会话支持"></a>会话支持</h4><blockquote><p>会话是一种持久的网络协议，用于完成服务器和客户端之间的一些交互行为。会话是一个比连接粒度更大的概念， 一次会话可能包含多次连接，每次连接都被认为是会话的一次操作。在网络应用开发中，有必要实现会话以帮助用户交互。例如网上购物的场景，用户浏览了多个页面，购买了一些物品，这些请求在多次连接中完成。许多应用层网络协议都是由会话支持的，如 FTP、Telnet 等，而 HTTP 协议是无状态的，本身不支持会话，因此在没有额外手段的帮助下，前面场景中服务器不知道用户购买了什么。</p>
+</code></pre><br>
+<h4>会话支持</h4>
+<br><blockquote><p>会话是一种持久的网络协议，用于完成服务器和客户端之间的一些交互行为。会话是一个比连接粒度更大的概念， 一次会话可能包含多次连接，每次连接都被认为是会话的一次操作。在网络应用开发中，有必要实现会话以帮助用户交互。例如网上购物的场景，用户浏览了多个页面，购买了一些物品，这些请求在多次连接中完成。许多应用层网络协议都是由会话支持的，如 FTP、Telnet 等，而 HTTP 协议是无状态的，本身不支持会话，因此在没有额外手段的帮助下，前面场景中服务器不知道用户购买了什么。</p>
 <p>为了在无状态的 HTTP 协议之上实现会话，Cookie 诞生了。Cookie 是一些存储在客户端的信息，每次连接的时候由浏览器向服务器递交，服务器也向浏览器发起存储 Cookie 的请求，依靠这样的手段服务器可以识别客户端。我们通常意义上的 HTTP 会话功能就是这样实现的。具体来说，浏览器首次向服务器发起请求时，服务器生成一个唯一标识符并发送给客户端浏览器，浏览器将这个唯一标识符存储在 Cookie 中，以后每次再发起请求，客户端浏览器都会向服务器传送这个唯一标识符，服务器通过这个唯一标识符来识别用户。 对于开发者来说，我们无须关心浏览器端的存储，需要关注的仅仅是如何通过这个唯一标识符来识别用户。很多服务端脚本语言都有会话功能，如 PHP，把每个唯一标识符存储到文件中。<br><br></p>
 <p class="end">——《Node.js开发指南》</p></blockquote>
-<p>express 也提供了会话中间件，默认情况下是把用户信息存储在内存中，但我们既然已经有了 MongoDB，不妨把会话信息存储在数据库中，便于持久维护。为了使用这一功能，我们需要借助 express-session 和 connect-mongo 这两个第三方中间件。</p>
-<p>在命令行输入：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ npm install --save express-session</div><div class="line">$ npm install --save connect-mongo</div></pre></td></tr></table></figure></p>
-<p>打开app.js，添加以下代码：</p>
+express 也提供了会话中间件，默认情况下是把用户信息存储在内存中，但我们既然已经有了 MongoDB，不妨把会话信息存储在数据库中，便于持久维护。为了使用这一功能，我们需要借助 express-session 和 connect-mongo 这两个第三方中间件。
+
+在命令行输入：
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ npm install --save express-session</div><div class="line">$ npm install --save connect-mongo</div></pre></td></tr></table></figure>
+
+安装模块,打开 app.js ，添加以下代码：
 <pre class="default"><code class="default">
 var session = require('express-session');
-var MongoStore = require('connect-mongo')(session);<br>
+var MongoStore = require('connect-mongo')(session);
+
 app.use(session({
   secret: settings.cookieSecret,
   key: settings.db,//cookie name
@@ -75,7 +188,7 @@ app.use(session({
     <entry>
       <title><![CDATA[搭建一个简单的博客 Lesson 1.2]]></title>
       <url>http://yoursite.com/2016/08/08/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8D%9A%E5%AE%A2-Lesson-1-2/</url>
-      <content type="html"><![CDATA[<h2 id="搭建多人博客"><a href="#搭建多人博客" class="headerlink" title="搭建多人博客"></a>搭建多人博客</h2><h4 id="功能分析"><a href="#功能分析" class="headerlink" title="功能分析"></a>功能分析</h4><p>搭建一个简单的具有多人注册、登录、发表文章、登出功能的博客。</p>
+      <content type="html"><![CDATA[<h3 id="搭建多人博客"><a href="#搭建多人博客" class="headerlink" title="搭建多人博客"></a>搭建多人博客<hr></h3><h4 id="功能分析"><a href="#功能分析" class="headerlink" title="功能分析"></a>功能分析</h4><p>搭建一个简单的具有多人注册、登录、发表文章、登出功能的博客。</p>
 <h4 id="设计目标"><a href="#设计目标" class="headerlink" title="设计目标"></a>设计目标</h4><blockquote><p>未登录： 主页导航显示 home、login、register，主体区显示已发表的文章、发表日期及作者。</p>
 <p>登陆后： 主页导航显示 home、post、logout，主体区显示已发表的文章、发表日期及作者。</p>
 <p>用户登录、注册、发表成功以及登出后都返回到主页。</p>
