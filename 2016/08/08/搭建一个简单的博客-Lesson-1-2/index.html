@@ -201,23 +201,49 @@
 </ul>
 <p>我们要求 <strong> /login </strong> 和 <strong> /reg </strong> 只能是未登录的用户访问，而 <strong> /post </strong> 和 <strong> /logout </strong> 只能是已登录的用户访问。左侧导航列表则针对已登录和未登录的用户显示不同的内容。</p>
 <ul>
-<li>修改 index.js 如下：<blockquote><p>var express = require(&#39;express&#39;);<br>var router = express.Router();</p>
-<p>&#47;&#42; GET home page. &#42;&#47;<br>router.get(&#39;&#47;&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;res.render(&#39;index&#39;, { title: &#39;首页&#39; });<br>});</p>
-<p>router.get(&#39;&#47;reg&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;res.render(&#39;reg&#39;, { title: &#39;注册&#39; });<br>});</p>
-<p>router.post(&#39;&#47;reg&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{</p>
-<p>});</p>
-<p>router.get(&#39;&#47;login&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;res.render(&#39;login&#39;, { title: &#39;登入&#39; });<br>});</p>
-<p>router.post(&#39;&#47;login&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{</p>
-<p>});</p>
-<p>router.get(&#39;&#47;post&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;res.render(&#39;post&#39;, { title: &#39;发表&#39; });<br>});</p>
-<p>router.post(&#39;&#47;post&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{</p>
-<p>});</p>
-<p>router.get(&#39;&#47;logout&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{</p>
-<p>});</p>
-<p>module.exports = router;</p>
-</blockquote>
-如何针对已登录和未登录的用户显示不同的内容呢？或者说如何判断用户是否已经登陆了呢？进一步说如何记住用户的登录状态呢？我们通过引入会话（session）机制记录用户登录状态，还要访问数据库来保存和读取用户信息。下一节我们将学习如何使用数据库。</li>
+<li>修改 index.js 如下：</li>
 </ul>
+<pre class="default"><code class="default">
+var express = require('express');
+var router = express.Router();
+
+&#47;&#42; GET home page. &#42;&#47;
+router.get('/', function(req, res, next) {
+  res.render('index', { title: '首页' });
+});
+
+router.get('/reg', function(req, res, next) {
+  res.render('reg', { title: '注册' });
+});
+
+router.post('/reg', function(req, res, next) {
+
+});
+
+router.get('/login', function(req, res, next) {
+  res.render('login', { title: '登入' });
+});
+
+router.post('/login', function(req, res, next) {
+
+});
+
+router.get('/post', function(req, res, next) {
+  res.render('post', { title: '发表' });
+});
+
+router.post('/post', function(req, res, next) {
+
+});
+
+router.get('/logout', function(req, res, next) {
+
+});
+
+module.exports = router;
+</code></pre>
+
+<p>如何针对已登录和未登录的用户显示不同的内容呢？或者说如何判断用户是否已经登陆了呢？进一步说如何记住用户的登录状态呢？我们通过引入会话（session）机制记录用户登录状态，还要访问数据库来保存和读取用户信息。下一节我们将学习如何使用数据库。</p>
 	  
 	</div>
 
