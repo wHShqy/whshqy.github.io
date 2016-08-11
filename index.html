@@ -174,9 +174,34 @@
 		
             
 		
+            
+		
         
         <!-- render other articles -->
         
+           
+			  
+	
+	<!-- display as entry -->	
+		<h3 class="title">
+			<div class="date"> 2016-08-11 </div>
+			<div class="article-title"><a href="/2016/08/11/搭建一个简单的博客-Lesson-1-6/" >搭建一个简单的博客 Lesson 1.6</a></div>						
+		</h3>
+	
+
+
+			  <div class="entry">
+  <div class="row">
+	
+	
+		<h3 id="发表文章"><a href="#发表文章" class="headerlink" title="发表文章"></a>发表文章<hr></h3>
+	
+	</div>
+  <a type="button" href="/2016/08/11/搭建一个简单的博客-Lesson-1-6/#more" class="btn btn-default more">Read More</a>
+</div>
+
+           
+		
            
 			  
 	
@@ -192,7 +217,148 @@
   <div class="row">
 	
 	
-		<h3 id="页面权限控制"><a href="#页面权限控制" class="headerlink" title="页面权限控制"></a>页面权限控制<hr></h3>
+		<h3 id="页面权限控制"><a href="#页面权限控制" class="headerlink" title="页面权限控制"></a>页面权限控制<hr></h3><p>我们虽然已经完成了用户注册与登陆的功能，但并不能阻止比如已经登陆的用户访问 localhost:3000/reg 页面，读者可亲自尝试下。为此，我们需要为页面设置访问权限。即注册和登陆页面应该阻止已登陆的用户访问，登出及后面我们将要实现的发表页只对已登录的用户开放。如何实现页面权限的控制呢？我们可以把用户登录状态的检查放到路由中间件中，在每个路径前增加路由中间件，即可实现页面权限控制。我们添加<code class="pale">checkNotLogin</code>和<code class="pale">checkLogin</code>函数来实现这个功能。</p>
+<pre class="default"><code class="default">
+function checkLogin(req, res, next) {
+  if (!req.session.user) {
+    req.flash('error', '未登录!');
+    res.redirect('/login');
+  }
+  next();
+}
+
+function checkNotLogin(req, res, next) {
+  if (req.session.user) {
+    req.flash('error', '已登录!');
+    res.redirect('back');//返回之前的页面
+  }
+  next();
+}
+</code></pre>
+
+<p><code class="pale">checkNotLogin</code>和<code class="pale">checkLogin</code>用来检测是否登陆，并通过<code class="pale">next()</code>转移控制权，检测到未登录则跳转到登录页，检测到已登录则跳转到前一个页面。</p>
+<p>最终 index.js 代码如下：</p>
+<pre class="default"><code class="default">
+var express = require('express'),
+    router = express.Router(),
+    crypto = require('crypto'),
+    User = require('../models/user.js');
+
+&#47;&#42; GET home page. &#42;&#47;
+router.get('/', function(req, res, next) {
+  res.render('index', { title: '首页' });
+});
+
+router.get('/reg', checkNotLogin);
+router.get('/reg', function(req, res, next) {
+  res.render('reg', { title: '注册' });
+});
+
+router.post('/reg', checkNotLogin);
+router.post('/reg', function(req, res, next) {
+  var name = req.body.name,
+      password = req.body.password,
+      password_re = req.body['password-repeat'];
+  //检验用户两次输入的密码是否一致
+  if (password_re != password) {
+    req.flash('error', '两次输入的密码不一致!');
+    return res.redirect('/reg');//返回注册页
+  }
+  //生成密码的 md5 值
+  var md5 = crypto.createHash('md5'),
+      password = md5.update(req.body.password).digest('hex');
+  var newUser = new User({
+      name: name,
+      password: password,
+      email: req.body.email
+  });
+  //检查用户名是否已经存在
+  User.get(newUser.name, function (err, user) {
+    if (err) {
+      req.flash('error', err);
+      return res.redirect('/');
+    }
+    if (user) {
+      req.flash('error', '用户已存在!');
+      return res.redirect('/reg');//返回注册页
+    }
+    //如果不存在则新增用户
+    newUser.save(function (err, user) {
+      if (err) {
+        req.flash('error', err);
+        return res.redirect('/reg');//注册失败返回主册页
+      }
+      req.session.user = newUser;//用户信息存入 session
+      req.flash('success', '注册成功!');
+      res.redirect('/');//注册成功后返回主页
+    });
+  });
+});
+
+router.get('/login', checkNotLogin);
+router.get('/login', function(req, res, next) {
+  res.render('login', { title: '登入' });
+});
+
+router.post('/login', checkNotLogin);
+router.post('/login', function(req, res, next) {
+  //生成密码的 md5 值
+  var md5 = crypto.createHash('md5'),
+      password = md5.update(req.body.password).digest('hex');
+  //检查用户是否存在
+  User.get(req.body.name, function (err, user) {
+    if (!user) {
+      req.flash('error', '用户不存在!');
+      return res.redirect('/login');//用户不存在则跳转到登录页
+    }
+    //检查密码是否一致
+    if (user.password != password) {
+      req.flash('error', '密码错误!');
+      return res.redirect('/login');//密码错误则跳转到登录页
+    }
+    //用户名密码都匹配后，将用户信息存入 session
+    req.session.user = user;
+    req.flash('success', '登陆成功!');
+    res.redirect('/');//登陆成功后跳转到主页
+  });
+});
+
+router.get('/post', checkLogin);
+router.get('/post', function(req, res, next) {
+  res.render('post', { title: '发表' });
+});
+
+router.post('/post', checkLogin);
+router.post('/post', function(req, res, next) {
+
+});
+
+router.get('/logout', checkLogin);
+router.get('/logout', function(req, res, next) {
+  req.session.user = null;
+  req.flash('success', '登出成功!');
+  res.redirect('/');//登出成功后跳转到主页
+});
+
+function checkLogin(req, res, next) {
+  if (!req.session.user) {
+    req.flash('error', '未登录!');
+    res.redirect('/login');
+  }
+  next();
+}
+
+function checkNotLogin(req, res, next) {
+  if (req.session.user) {
+    req.flash('error', '已登录!');
+    res.redirect('back');//返回之前的页面
+  }
+  next();
+}
+
+module.exports = router;
+</code></pre>
+
 	
 	</div>
   <a type="button" href="/2016/08/11/搭建一个简单的博客-Lesson-1-5/#more" class="btn btn-default more">Read More</a>
@@ -715,17 +881,17 @@ app.use(session({
 <p>我们要求 <strong> /login </strong> 和 <strong> /reg </strong> 只能是未登录的用户访问，而 <strong> /post </strong> 和 <strong> /logout </strong> 只能是已登录的用户访问。左侧导航列表则针对已登录和未登录的用户显示不同的内容。</p>
 <ul>
 <li>修改 index.js 如下：<blockquote><p>var express = require(&#39;express&#39;);<br>var router = express.Router();</p>
-<p>&#47;&#42; GET home page. &#42;&#47;<br>router.get(&#39;&#47;&#39;, function(req, res, next) {<br>  res.render(&#39;index&#39;, { title: &#39;首页&#39; });<br>});</p>
-<p>router.get(&#39;&#47;reg&#39;, function(req, res, next) {<br>  res.render(&#39;reg&#39;, { title: &#39;注册&#39; });<br>});</p>
-<p>router.post(&#39;&#47;reg&#39;, function(req, res, next) {</p>
+<p>&#47;&#42; GET home page. &#42;&#47;<br>router.get(&#39;&#47;&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;res.render(&#39;index&#39;, { title: &#39;首页&#39; });<br>});</p>
+<p>router.get(&#39;&#47;reg&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;res.render(&#39;reg&#39;, { title: &#39;注册&#39; });<br>});</p>
+<p>router.post(&#39;&#47;reg&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{</p>
 <p>});</p>
-<p>router.get(&#39;&#47;login&#39;, function(req, res, next) {<br>  res.render(&#39;login&#39;, { title: &#39;登入&#39; });<br>});</p>
-<p>router.post(&#39;&#47;login&#39;, function(req, res, next) {</p>
+<p>router.get(&#39;&#47;login&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;res.render(&#39;login&#39;, { title: &#39;登入&#39; });<br>});</p>
+<p>router.post(&#39;&#47;login&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{</p>
 <p>});</p>
-<p>router.get(&#39;&#47;post&#39;, function(req, res, next) {<br>  res.render(&#39;post&#39;, { title: &#39;发表&#39; });<br>});</p>
-<p>router.post(&#39;&#47;post&#39;, function(req, res, next) {</p>
+<p>router.get(&#39;&#47;post&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;res.render(&#39;post&#39;, { title: &#39;发表&#39; });<br>});</p>
+<p>router.post(&#39;&#47;post&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{</p>
 <p>});</p>
-<p>router.get(&#39;&#47;logout&#39;, function(req, res, next) {</p>
+<p>router.get(&#39;&#47;logout&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{</p>
 <p>});</p>
 <p>module.exports = router;</p>
 </blockquote>
@@ -850,6 +1016,10 @@ app.use(session({
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2016/08/11/搭建一个简单的博客-Lesson-1-6/" ><i class="fa fa-file-o"></i>搭建一个简单的博客 Lesson 1.6</a>
+      </li>
+    
+      <li>
         <a href="/2016/08/11/搭建一个简单的博客-Lesson-1-5/" ><i class="fa fa-file-o"></i>搭建一个简单的博客 Lesson 1.5</a>
       </li>
     
@@ -863,10 +1033,6 @@ app.use(session({
     
       <li>
         <a href="/2016/08/08/搭建一个简单的博客-Lesson-1-2/" ><i class="fa fa-file-o"></i>搭建一个简单的博客 Lesson 1.2</a>
-      </li>
-    
-      <li>
-        <a href="/2016/08/08/搭建一个简单的博客 Lesson 1-1/" ><i class="fa fa-file-o"></i>搭建一个简单的博客 Lesson 1.1</a>
       </li>
     
   </ul>

@@ -202,17 +202,17 @@
 <p>我们要求 <strong> /login </strong> 和 <strong> /reg </strong> 只能是未登录的用户访问，而 <strong> /post </strong> 和 <strong> /logout </strong> 只能是已登录的用户访问。左侧导航列表则针对已登录和未登录的用户显示不同的内容。</p>
 <ul>
 <li>修改 index.js 如下：<blockquote><p>var express = require(&#39;express&#39;);<br>var router = express.Router();</p>
-<p>&#47;&#42; GET home page. &#42;&#47;<br>router.get(&#39;&#47;&#39;, function(req, res, next) {<br>  res.render(&#39;index&#39;, { title: &#39;首页&#39; });<br>});</p>
-<p>router.get(&#39;&#47;reg&#39;, function(req, res, next) {<br>  res.render(&#39;reg&#39;, { title: &#39;注册&#39; });<br>});</p>
-<p>router.post(&#39;&#47;reg&#39;, function(req, res, next) {</p>
+<p>&#47;&#42; GET home page. &#42;&#47;<br>router.get(&#39;&#47;&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;res.render(&#39;index&#39;, { title: &#39;首页&#39; });<br>});</p>
+<p>router.get(&#39;&#47;reg&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;res.render(&#39;reg&#39;, { title: &#39;注册&#39; });<br>});</p>
+<p>router.post(&#39;&#47;reg&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{</p>
 <p>});</p>
-<p>router.get(&#39;&#47;login&#39;, function(req, res, next) {<br>  res.render(&#39;login&#39;, { title: &#39;登入&#39; });<br>});</p>
-<p>router.post(&#39;&#47;login&#39;, function(req, res, next) {</p>
+<p>router.get(&#39;&#47;login&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;res.render(&#39;login&#39;, { title: &#39;登入&#39; });<br>});</p>
+<p>router.post(&#39;&#47;login&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{</p>
 <p>});</p>
-<p>router.get(&#39;&#47;post&#39;, function(req, res, next) {<br>  res.render(&#39;post&#39;, { title: &#39;发表&#39; });<br>});</p>
-<p>router.post(&#39;&#47;post&#39;, function(req, res, next) {</p>
+<p>router.get(&#39;&#47;post&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;res.render(&#39;post&#39;, { title: &#39;发表&#39; });<br>});</p>
+<p>router.post(&#39;&#47;post&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{</p>
 <p>});</p>
-<p>router.get(&#39;&#47;logout&#39;, function(req, res, next) {</p>
+<p>router.get(&#39;&#47;logout&#39;,&nbsp;&nbsp;function(req, res, next)&nbsp;&nbsp;{</p>
 <p>});</p>
 <p>module.exports = router;</p>
 </blockquote>
