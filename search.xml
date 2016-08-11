@@ -4,6 +4,12 @@
   
     
     <entry>
+      <title><![CDATA[搭建一个简单的博客 Lesson 1.5]]></title>
+      <url>http://yoursite.com/2016/08/11/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8D%9A%E5%AE%A2-Lesson-1-5/</url>
+      <content type="html"><![CDATA[<h3 id="页面权限控制"><a href="#页面权限控制" class="headerlink" title="页面权限控制"></a>页面权限控制<hr></h3>]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[搭建一个简单的博客 Lesson 1.4]]></title>
       <url>http://yoursite.com/2016/08/09/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8D%9A%E5%AE%A2-Lesson-1-4/</url>
       <content type="html"><![CDATA[<h3 id="注册和登陆"><a href="#注册和登陆" class="headerlink" title="注册和登陆"></a>注册和登陆<hr></h3><p>我们已经准备好了数据库访问和会话的相关信息，接下来我们完成用户注册和登录功能。<br><br></p>
@@ -14,6 +20,10 @@
 &lt;div class="hero-unit"&gt;
   &lt;h1&gt;欢迎来到 简易博客&lt;/h1&gt;
   &lt;p&gt;简易博客 是一个基于 Node.js 的微博系统。&lt;/p&gt;
+  &lt;p&gt;
+    &lt;a class="btn btn-primary btn-large" href="/login"&gt;登录&lt;/a&gt;
+    &lt;a class="btn btn-large" href="/reg"&gt;立即注册&lt;/a&gt;
+  &lt;/p>
 &lt;/div&gt;
 &lt;%- include footer %&gt;
 </code></pre>
@@ -37,10 +47,10 @@
             &lt;span class="icon-bar"&gt;&lt;/span&gt;
             &lt;span class="icon-bar"&gt;&lt;/span&gt;
           &lt;/a&gt;
-          &lt;a class="brand" href="/“&gt;简易博客&lt;/a&gt;
+          &lt;a class="brand" href="/"&gt;简易博客&lt;/a&gt;
           &lt;div class="nav-collapse"&gt;
             &lt;ul class="nav"&gt;
-              &lt;li class="active"&gt;&lt;a href="/“&gt;首页&lt;/a&gt;&lt;/li&gt;
+              &lt;li class="active"&gt;&lt;a href="/"&gt;首页&lt;/a&gt;&lt;/li&gt;
               &lt;li&gt;&lt;a href="/login"&gt;发表&lt;/a&gt;&lt;/li&gt;
               &lt;li&gt;&lt;a href="/reg"&gt;登出&lt;/a&gt;&lt;/li&gt;
             &lt;/ul&gt;
@@ -72,16 +82,43 @@ body {
 }
 </code></pre>
 
-<p>登录页面显示如下：<br><img src="/img/blog/1.3.png" alt=""><br>在 views 文件夹下新建 reg.ejs，内容如下：</p>
+<p>运行 DEBUG=microblog:* npm start ，主页显示如下：<br><img src="/img/blog/1.3.png" alt=""></p>
+<p>接下来在 views 文件夹下新建 login.ejs，内容如下：</p>
+<pre class="default"><code class="default">
+&lt;%- include header %&gt;
+&lt;form class="form-horizontal" method="post"&gt;
+  &lt;fieldset&gt;
+    &lt;legend&gt;用户登入&lt;/legend&gt;
+    &lt;div class="control-group"&gt;
+      &lt;label class="control-label" for="name"&gt;用户名&lt;/label&gt;
+      &lt;div class="controls"&gt;
+        &lt;input type="text" class="input-xlarge" id="name" name="name"&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="control-group"&gt;
+      &lt;label class="control-label" for="password"&gt;口令&lt;/label&gt;
+      &lt;div class="controls"&gt;
+        &lt;input type="password" class="input-xlarge" id="password" name="password"&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="form-actions"&gt;
+      &lt;button type="submit" class="btn btn-primary"&gt;登入&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/fieldset&gt;
+&lt;/form&gt;
+&lt;%- include footer %&gt;
+</code></pre>
+
+<p>登录页面显示如下：<br><img src="/img/blog/1.4.png" alt=""><br>在 views 文件夹下新建 reg.ejs，内容如下：</p>
 <pre class="default"><code class="default">
 &lt;%- include header %&gt;
 &lt;form class="form-horizontal" method="post"&gt;
   &lt;fieldset&gt;
     &lt;legend&gt;用户注册&lt;/legend&gt;
     &lt;div class="control-group"&gt;
-      &lt;label class="control-label" for="username"&gt;用户名&lt;/label&gt;
+      &lt;label class="control-label" for="name"&gt;用户名&lt;/label&gt;
       &lt;div class="controls"&gt;
-        &lt;input type="text" class="input-xlarge" id="username" name="username"&gt;
+        &lt;input type="text" class="input-xlarge" id="name" name="name"&gt;
         &lt;p class="help-block"&gt;你的账户名称,用于登录和显示。&lt;/p&gt;
       &lt;/div&gt;
     &lt;/div&gt;
@@ -111,22 +148,244 @@ body {
 &lt;%- include footer %&gt;
 </code></pre>
 
-<p>注册页面显示如下：<br><img src="/img/blog/1.4.png" alt=""><br>至此，未登录时的主页、注册页、登录页都已经完成。</p>
+<p>注册页面显示如下：<br><img src="/img/blog/1.5.png" alt=""><br>至此，未登录时的主页、注册页、登录页都已经完成。</p>
 <p>现在，启动我们的博客看看吧。<br><br></p>
 <h4 id="页面通知"><a href="#页面通知" class="headerlink" title="页面通知"></a>页面通知</h4><p><br><br>接下来我们实现用户的注册和登陆，在这之前我们需要引入 flash 模块来实现页面通知（即成功与错误信息的显示）的功能。</p>
 <p>什么是<strong> flash? </strong></p>
 <p>我们所说的 flash 即 connect-flash 模块<a href="https://github.com/jaredhanson/connect-flash" target="_blank" rel="external">(https://github.com/jaredhanson/connect-flash)</a>，flash 是一个在 session 中用于存储信息的特定区域。信息写入 flash ，下一次显示完毕后即被清除。典型的应用是结合重定向的功能，确保信息是提供给下一个被渲染的页面。</p>
 <p>在命令行输入：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ npm install --save connect-flash</div></pre></td></tr></table></figure></p>
-<pre class="normal">安装 connect-flash 模块。修改 app.js ，在<code class="pale">var settings = require('./settings');</code></pre>
+<p>安装 connect-flash 模块。修改 app.js ，在<code class="pale">var settings = require(&apos;./settings&apos;);</code>后添加：</p>
 <pre class="default"><code class="default">
 var flash = require('connect-flash');
 </code></pre>
-<pre class="normal">在<code class="pale">app.set('view engine', 'ejs');</code>后添加：</pre>
+
+<p>在<code class="pale">app.set(&#39;view engine&#39;, &#39;ejs&#39;);</code>后添加：</p>
 <pre class="default"><code class="default">
 app.use(flash());
 </code></pre>
 
-<p>现在我们就可以使用 flash 功能了。</p>
+<p>现在我们就可以使用 flash 功能了。<br><br></p>
+<h4 id="视图交互"><a href="#视图交互" class="headerlink" title="视图交互"></a>视图交互</h4><p><br><br>现在几乎已经万事俱备,只差视图的支持了。为了实现不同登录状态下页面呈现不同内容的功能,我们要创建动态视图助手,通过它我们才能在视图中访问会话中的用户数据。同时为了显示错误和成功的信息,也要在动态视图助手中增加响应的函数。</p>
+<p>打开 app.js,在<code class="pale">app.use(&#39;/&#39;, routes);</code>前添加以下代码:</p>
+<pre class="default"><code class="default">
+app.use(function(req, res, next){
+  console.log("app.usr local");
+  res.locals.user = req.session.user;
+  res.locals.post = req.session.post;
+  var error = req.flash('error');
+  res.locals.error = error.length ? error : null;<br>
+  var success = req.flash('success');
+  res.locals.success = success.length ? success : null;
+  next();
+});
+</code></pre>
+
+<p><br></p>
+<h4 id="注册响应"><a href="#注册响应" class="headerlink" title="注册响应"></a>注册响应</h4><p><br><br>前面我们已经完成了注册页，当然现在点击注册是没有效果的，因为我们还没有实现处理 POST 请求的功能，下面就来实现它。</p>
+<p>在 models 文件夹下新建 user.js，添加如下代码：</p>
+<pre class="default"><code class="default">
+var mongodb = require('./db');
+
+function User(user) {
+  this.name = user.name;
+  this.password = user.password;
+  this.email = user.email;
+};
+
+module.exports = User;
+
+//存储用户信息
+User.prototype.save = function(callback) {
+  //要存入数据库的用户文档
+  var user = {
+      name: this.name,
+      password: this.password,
+      email: this.email
+  };
+  //打开数据库
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);//错误，返回 err 信息
+    }
+    //读取 users 集合
+    db.collection('users', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);//错误，返回 err 信息
+      }
+      //将用户数据插入 users 集合
+      collection.insert(user, {
+        safe: true
+      }, function (err, user) {
+        mongodb.close();
+        if (err) {
+          return callback(err);//错误，返回 err 信息
+        }
+        callback(null, user[0]);//成功！err 为 null，并返回存储后的用户文档
+      });
+    });
+  });
+};
+
+//读取用户信息
+User.get = function(name, callback) {
+  //打开数据库
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);//错误，返回 err 信息
+    }
+    //读取 users 集合
+    db.collection('users', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);//错误，返回 err 信息
+      }
+      //查找用户名（name键）值为 name 一个文档
+      collection.findOne({
+        name: name
+      }, function (err, user) {
+        mongodb.close();
+        if (err) {
+          return callback(err);//失败！返回 err 信息
+        }
+        callback(null, user);//成功！返回查询的用户信息
+      });
+    });
+  });
+};
+</code></pre>
+
+<p>我们通过<code class="pale">User.prototype.save</code>实现了用户信息的存储，通过<code class="pale">User.get</code>实现了用户信息的读取。</p>
+<p>打开 index.js ，在<code class="pale">var router = express.Router();</code>后面添加如下代码：</p>
+<pre class="default"><code class="default">
+var crypto = require('crypto'),
+    User = require('../models/user.js');
+</code></pre>
+
+<p>通过<code class="pale">require()</code>引入 crypto 模块和 user.js 用户模型文件，crypto 是 Node.js 的一个核心模块，我们用它生成散列值来加密密码。</p>
+<p>修改 index.js 中<code class="pale">router.post(&#39;/reg&#39;, function(req, res, next)</code>如下：</p>
+<pre class="default"><code class="default">
+router.post('/reg', function(req, res, next) {
+  var name = req.body.name,
+      password = req.body.password,
+      password_re = req.body['password-repeat'];
+  //检验用户两次输入的密码是否一致
+  if (password_re != password) {
+    req.flash('error', '两次输入的密码不一致!');
+    return res.redirect('/reg');//返回注册页
+  }
+  //生成密码的 md5 值
+  var md5 = crypto.createHash('md5'),
+      password = md5.update(req.body.password).digest('hex');
+  var newUser = new User({
+      name: name,
+      password: password,
+      email: req.body.email
+  });
+  //检查用户名是否已经存在
+  User.get(newUser.name, function (err, user) {
+    if (err) {
+      req.flash('error', err);
+      return res.redirect('/');
+    }
+    if (user) {
+      req.flash('error', '用户已存在!');
+      return res.redirect('/reg');//返回注册页
+    }
+    //如果不存在则新增用户
+    newUser.save(function (err, user) {
+      if (err) {
+        req.flash('error', err);
+        return res.redirect('/reg');//注册失败返回主册页
+      }
+      req.session.user = newUser;//用户信息存入 session
+      req.flash('success', '注册成功!');
+      res.redirect('/');//注册成功后返回主页
+    });
+  });
+});
+</code></pre>
+
+<p>注意：我们把用户信息存储在了 session 里，以后就可以通过 req.session.user 读取用户信息。</p>
+<ul>
+<li><strong> req.body </strong> ： 就是 POST 请求信息解析过后的对象，例如我们要访问 POST 来的表单内的 name=&quot;password&quot; 域的值，只需访问 req.body[&#39;password&#39;] 或 req.body.password 即可。</li>
+<li><strong> res.redirect </strong> ： 重定向功能，实现了页面的跳转，更多关于 res.redirect 的信息请查阅：<br><a href="http://expressjs.com/api.html#res.redirect" target="_blank" rel="external">http://expressjs.com/api.html#res.redirect</a> 。</li>
+<li><strong> User </strong> ：在前面的代码中，我们直接使用了 User 对象。User 是一个描述数据的对象，即 MVC 架构中的模型。前面我们使用了许多视图和控制器，这是第一次接触到模型。与视图和控制器不同，模型是真正与数据打交道的工具，没有模型，网站就只是一个外壳，不能发挥真实的作用，因此它是框架中最根本的部分。</li>
+</ul>
+<p>现在，启动应用，在浏览器输入 localhost:3000 注册试试吧！注册成功后显示如下：<br><img src="/img/blog/1.8.png" alt=""></p>
+<p>这样我们并不知道是否注册成功，我们查看数据库中是否存入了用户的信息，打开一个命令行（保证数据库已打开的前提下），输入：<br><img src="/img/blog/1.9.png" alt=""></p>
+<p>可以看到，用户信息已经成功存入数据库。</p>
+<p>接下来我们实现当注册成功返回主页时，导航显示 HOME 、POST 、LOGOUT ，主体顶部显示 注册成功！ 字样，即添加 flash 的页面通知功能。</p>
+<p>修改 header.ejs，将<code class="pale">&lt;ul class=&quot;nav&quot;&gt;&lt;/ul&gt;</code>修改如下：</p>
+<pre class="default"><code class="default">
+&lt;ul class="nav"&gt;
+  &lt;li class="active"&gt;&lt;a href="/"&gt;首页&lt;/a&gt;&lt;/li&gt;
+  &lt;% if (user) { %&gt;
+    &lt;li&gt;&lt;a href="/post"&gt;发表&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="/logout"&gt;登出&lt;/a&gt;&lt;/li&gt;
+  &lt;% } else { %&gt;
+    &lt;li&gt;&lt;a href="/login"&gt;登入&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="/reg"&gt;注册&lt;/a&gt;&lt;/li&gt;
+  &lt;% } %&gt;
+&lt;/ul&gt;
+</code></pre>
+
+<p>在 views 文件夹下新建 article.ejs，添加如下代码：</p>
+<pre class="default"><code class="default">
+&lt;% if (success) { %&gt;
+  &lt;div class="alert alert-success"&gt;&lt;%= success %&gt;&lt;/div&gt;
+&lt;% } %&gt;
+&lt;% if (error) { %&gt;
+  &lt;div class="alert alert-error"&gt;&lt;%= error %&gt;&lt;/div&gt;
+&lt;% } %&gt;
+</code></pre>
+
+<p>修改 views/index.ejs 在<code class="pale">&lt;%- include header %&gt;</code>后添加：</p>
+<pre class="default"><code class="default">
+&lt;%- include article %&gt;
+</code></pre>
+
+<p>现在运行我们的博客，注册成功后显示如下：<br><img src="/img/blog/1.10.png" alt=""></p>
+<p>我们通过对 session 的使用实现了对用户状态的检测，再根据不同的用户状态显示不同的导航信息。<br>简单解释一下流程：用户在注册成功后，把用户信息存入 session ，页面跳转到主页显示 注册成功！ 的字样。同时把 session 中的用户信息赋给变量 user ，在渲染 index.ejs 文件时通过检测 user 判断用户是否在线，根据用户状态的不同显示不同的导航信息。<br><br></p>
+<h4 id="登录与登出响应"><a href="#登录与登出响应" class="headerlink" title="登录与登出响应"></a>登录与登出响应</h4><p><br><br>现在我们来实现用户登录的功能。</p>
+<p>打开 index.js ，将<code class="pale">router.post(&#39;/login&#39;, function(req, res, next)</code>修改如下：</p>
+<pre class="default"><code class="default">
+router.post('/login', function(req, res, next) {
+  //生成密码的 md5 值
+  var md5 = crypto.createHash('md5'),
+      password = md5.update(req.body.password).digest('hex');
+  //检查用户是否存在
+  User.get(req.body.name, function (err, user) {
+    if (!user) {
+      req.flash('error', '用户不存在!');
+      return res.redirect('/login');//用户不存在则跳转到登录页
+    }
+    //检查密码是否一致
+    if (user.password != password) {
+      req.flash('error', '密码错误!');
+      return res.redirect('/login');//密码错误则跳转到登录页
+    }
+    //用户名密码都匹配后，将用户信息存入 session
+    req.session.user = user;
+    req.flash('success', '登陆成功!');
+    res.redirect('/');//登陆成功后跳转到主页
+  });
+});
+</code></pre>
+
+<p>接下来我们实现登出响应。修改<code class="pale">router.get(&#39;/logout&#39;, function(req, res, next)</code>如下：</p>
+<pre class="default"><code class="default">
+router.get('/logout', function(req, res, next) {
+  req.session.user = null;
+  req.flash('success', '登出成功!');
+  res.redirect('/');//登出成功后跳转到主页
+});
+</code></pre>
+
+<p>注意：通过把 req.session.user 赋值 null 丢掉 session 中用户的信息，实现用户的退出。</p>
+<p>登录后页面显示如下：<br><img src="/img/blog/1.11.png" alt=""></p>
+<p>登出后页面显示如下：<br><img src="/img/blog/1.12.png" alt=""></p>
+<p>至此，我们实现了用户注册与登陆的功能，并且根据用户登录状态显示不同的导航。</p>
 ]]></content>
     </entry>
     
@@ -218,18 +477,18 @@ app.use(session({
 </ul>
 <p>我们要求 <strong> /login </strong> 和 <strong> /reg </strong> 只能是未登录的用户访问，而 <strong> /post </strong> 和 <strong> /logout </strong> 只能是已登录的用户访问。左侧导航列表则针对已登录和未登录的用户显示不同的内容。</p>
 <ul>
-<li>修改 index.js 如下：<blockquote><p>var express = require(‘express’);<br>var router = express.Router();</p>
-<p>router.get(‘/‘, function(req, res, next) {<br>  res.render(‘index’, { title: ‘首页’ });<br>});</p>
-<p>router.get(‘/reg’, function(req, res, next) {<br>  res.render(‘reg’, { title: ‘注册’ });<br>});</p>
-<p>router.post(‘/reg’, function(req, res, next) {</p>
+<li>修改 index.js 如下：<blockquote><p>var express = require(&#39;express&#39;);<br>var router = express.Router();</p>
+<p>&#47;&#42; GET home page. &#42;&#47;<br>router.get(&#39;&#47;&#39;, function(req, res, next) {<br>  res.render(&#39;index&#39;, { title: &#39;首页&#39; });<br>});</p>
+<p>router.get(&#39;&#47;reg&#39;, function(req, res, next) {<br>  res.render(&#39;reg&#39;, { title: &#39;注册&#39; });<br>});</p>
+<p>router.post(&#39;&#47;reg&#39;, function(req, res, next) {</p>
 <p>});</p>
-<p>router.get(‘/login’, function(req, res, next) {<br>  res.render(‘login’, { title: ‘登入’ });<br>});</p>
-<p>router.post(‘/login’, function(req, res, next) {</p>
+<p>router.get(&#39;&#47;login&#39;, function(req, res, next) {<br>  res.render(&#39;login&#39;, { title: &#39;登入&#39; });<br>});</p>
+<p>router.post(&#39;&#47;login&#39;, function(req, res, next) {</p>
 <p>});</p>
-<p>router.get(‘/post’, function(req, res, next) {<br>  res.render(‘post’, { title: ‘发表’ });<br>});</p>
-<p>router.post(‘/post’, function(req, res, next) {</p>
+<p>router.get(&#39;&#47;post&#39;, function(req, res, next) {<br>  res.render(&#39;post&#39;, { title: &#39;发表&#39; });<br>});</p>
+<p>router.post(&#39;&#47;post&#39;, function(req, res, next) {</p>
 <p>});</p>
-<p>router.get(‘/logout’, function(req, res, next) {</p>
+<p>router.get(&#39;&#47;logout&#39;, function(req, res, next) {</p>
 <p>});</p>
 <p>module.exports = router;</p>
 </blockquote>

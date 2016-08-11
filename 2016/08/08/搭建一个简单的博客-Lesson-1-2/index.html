@@ -43,33 +43,33 @@
 
 
   <script id="barTmpl" type="text/x-jquery-tmpl">
-    <div class="cn-bar">
-      <div class="cn-nav">
-				<a href="#" class="cn-nav-prev">
-          <span>Previous</span>
-					<div style="background-image:url(${prevSource});"></div>
-				</a>
-				<a href="#" class="cn-nav-next">
-          <span>Next</span>
-					<div style="background-image:url(${nextSource});"></div>
-				</a>
-      </div><!-- cn-nav -->
-      <div class="cn-nav-content">
-        <div class="cn-nav-content-prev">
-          <span>上一个图像</span>
-          <h3>${prevTitle}</h3>
-        </div>
-        <div class="cn-nav-content-current">
-          <span>正在查看</span>
-          <h2>${currentTitle}</h2>
-        </div>
-        <div class="cn-nav-content-next">
-          <span>下一个图像</span>
-          <h3>${nextTitle}</h3>
-        </div>
-      </div><!-- cn-nav-content -->
-    </div><!-- cn-bar -->
-	</script>
+  <div class="cn-bar">
+    <div class="cn-nav">
+      <a href="#" class="cn-nav-prev">
+        <span>Previous</span>
+        <div style="background-image:url(${prevSource});"></div>
+      </a>
+      <a href="#" class="cn-nav-next">
+        <span>Next</span>
+        <div style="background-image:url(${nextSource});"></div>
+      </a>
+    </div><!-- cn-nav -->
+    <div class="cn-nav-content">
+      <div class="cn-nav-content-prev">
+        <span>上一个图像</span>
+        <h3>${prevTitle}</h3>
+      </div>
+      <div class="cn-nav-content-current">
+        <span>正在查看</span>
+        <h2>${currentTitle}</h2>
+      </div>
+      <div class="cn-nav-content-next">
+        <span>下一个图像</span>
+        <h3>${nextTitle}</h3>
+      </div>
+    </div><!-- cn-nav-content -->
+  </div><!-- cn-bar -->
+</script>
 
 </head>
 
@@ -201,18 +201,18 @@
 </ul>
 <p>我们要求 <strong> /login </strong> 和 <strong> /reg </strong> 只能是未登录的用户访问，而 <strong> /post </strong> 和 <strong> /logout </strong> 只能是已登录的用户访问。左侧导航列表则针对已登录和未登录的用户显示不同的内容。</p>
 <ul>
-<li>修改 index.js 如下：<blockquote><p>var express = require(‘express’);<br>var router = express.Router();</p>
-<p>router.get(‘/‘, function(req, res, next) {<br>  res.render(‘index’, { title: ‘首页’ });<br>});</p>
-<p>router.get(‘/reg’, function(req, res, next) {<br>  res.render(‘reg’, { title: ‘注册’ });<br>});</p>
-<p>router.post(‘/reg’, function(req, res, next) {</p>
+<li>修改 index.js 如下：<blockquote><p>var express = require(&#39;express&#39;);<br>var router = express.Router();</p>
+<p>&#47;&#42; GET home page. &#42;&#47;<br>router.get(&#39;&#47;&#39;, function(req, res, next) {<br>  res.render(&#39;index&#39;, { title: &#39;首页&#39; });<br>});</p>
+<p>router.get(&#39;&#47;reg&#39;, function(req, res, next) {<br>  res.render(&#39;reg&#39;, { title: &#39;注册&#39; });<br>});</p>
+<p>router.post(&#39;&#47;reg&#39;, function(req, res, next) {</p>
 <p>});</p>
-<p>router.get(‘/login’, function(req, res, next) {<br>  res.render(‘login’, { title: ‘登入’ });<br>});</p>
-<p>router.post(‘/login’, function(req, res, next) {</p>
+<p>router.get(&#39;&#47;login&#39;, function(req, res, next) {<br>  res.render(&#39;login&#39;, { title: &#39;登入&#39; });<br>});</p>
+<p>router.post(&#39;&#47;login&#39;, function(req, res, next) {</p>
 <p>});</p>
-<p>router.get(‘/post’, function(req, res, next) {<br>  res.render(‘post’, { title: ‘发表’ });<br>});</p>
-<p>router.post(‘/post’, function(req, res, next) {</p>
+<p>router.get(&#39;&#47;post&#39;, function(req, res, next) {<br>  res.render(&#39;post&#39;, { title: &#39;发表&#39; });<br>});</p>
+<p>router.post(&#39;&#47;post&#39;, function(req, res, next) {</p>
 <p>});</p>
-<p>router.get(‘/logout’, function(req, res, next) {</p>
+<p>router.get(&#39;&#47;logout&#39;, function(req, res, next) {</p>
 <p>});</p>
 <p>module.exports = router;</p>
 </blockquote>
