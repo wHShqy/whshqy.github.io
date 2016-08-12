@@ -491,7 +491,7 @@ router.post('/reg', function(req, res, next) {
 &lt;/ul&gt;
 </code></pre>
 
-<p>在 views 文件夹下新建 article.ejs，添加如下代码：</p>
+<p>在 views 文件夹下新建 alert.ejs，添加如下代码：</p>
 <pre class="default"><code class="default">
 &lt;% if (success) { %&gt;
   &lt;div class="alert alert-success"&gt;&lt;%= success %&gt;&lt;/div&gt;
@@ -501,9 +501,9 @@ router.post('/reg', function(req, res, next) {
 &lt;% } %&gt;
 </code></pre>
 
-<p>修改 views/index.ejs 在<code class="pale">&lt;%- include header %&gt;</code>后添加：</p>
+<p>修改<code class="pale">views/index.ejs</code>、<code class="pale">views/login.ejs</code>、<code class="pale">views/reg.ejs</code>在<code class="pale">&lt;%- include header %&gt;</code>后添加：</p>
 <pre class="default"><code class="default">
-&lt;%- include article %&gt;
+&lt;%- include alert %&gt;
 </code></pre>
 
 <p>现在运行我们的博客，注册成功后显示如下：<br><img src="/img/blog/1.10.png" alt=""></p>

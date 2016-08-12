@@ -175,6 +175,7 @@
 <h4 id="页面设计"><a href="#页面设计" class="headerlink" title="页面设计"></a>页面设计</h4><p><br><br>我们先来完成发表页的页面设计。在 views 文件夹下新建 post.ejs ，添加如下代码：</p>
 <pre class="default"><code class="default">
 &lt;%- include header %&gt;
+&lt;%- include alert %&gt;
 &lt;form method="post"&gt;
   &lt;fieldset&gt;
     &lt;legend&gt;发表&lt;/legend&gt;
@@ -319,7 +320,7 @@ router.post('/post', function(req, res, next) {
 <p>打开 index.ejs ，修改如下：</p>
 <pre class="default"><code class="default">
 &lt;%- include header %&gt;
-&lt;%- include article %&gt;
+&lt;%- include alert %&gt;
 &lt;div class="hero-unit"&gt;
   &lt;h1&gt;欢迎来到 简易博客&lt;/h1&gt;
   &lt;p&gt;简易博客 是一个基于 Node.js 的微博系统。&lt;/p&gt;
