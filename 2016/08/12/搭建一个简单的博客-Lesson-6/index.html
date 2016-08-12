@@ -3,17 +3,20 @@
 <head>
   <meta charset="utf-8">
   
-  <title>搭建一个简单的博客 Lesson 4.1 | Whiteshadow&#39;s Blog</title>
+  <title>搭建一个简单的博客 Lesson 6 | Whiteshadow&#39;s Blog</title>
   <meta name="author" content="Whiteshadow">
   
-  <meta name="description" content="实现用户页面和文章页面现在，我们来给博客添加用户页面和文章页面。
-所谓用户页面就是当点击某个用户名链接时，跳转到：域名/u/用户名，并列出该用户的所有文章。同理，文章页面就是当点击某篇文章标题时，跳转到：域名/u/用户名/时间/文章名，进入到该文章的页面（也许还有该文章的评论等）。
-在开始之前我们需">
+  <meta name="description" content="实现留言功能一个完整的博客怎么能缺少留言功能呢，当然我们可以用第三方社会化评论插件，既然我们有了数据库，我们不妨把留言保存到自己的数据库里。
+我们设定：只有在文章页面才会显示留言板。
+打开 post.js ，修改Post.prototype.save中要存入的文档为：
+
+var post = {
+ ">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="搭建一个简单的博客 Lesson 4.1"/>
+  <meta property="og:title" content="搭建一个简单的博客 Lesson 6"/>
   <meta property="og:site_name" content="Whiteshadow&#39;s Blog"/>
 
   
@@ -150,7 +153,7 @@
 
 	
 		<div class="page-header page-header-inverse ">		
-			<h1 class="title title-inverse "> 搭建一个简单的博客 Lesson 4.1</h1>
+			<h1 class="title title-inverse "> 搭建一个简单的博客 Lesson 6</h1>
 		</div>		
 	
 
@@ -170,12 +173,53 @@
 	<div class="mypage">		
 	  		
 
-	  <h3 id="实现用户页面和文章页面"><a href="#实现用户页面和文章页面" class="headerlink" title="实现用户页面和文章页面"></a>实现用户页面和文章页面<hr></h3><p>现在，我们来给博客添加用户页面和文章页面。</p>
-<p>所谓用户页面就是当点击某个用户名链接时，跳转到：<code class="pale">域名/u/用户名</code>，并列出该用户的所有文章。<br>同理，文章页面就是当点击某篇文章标题时，跳转到：<code class="pale">域名/u/用户名/时间/文章名</code>，进入到该文章的页面（也许还有该文章<br>的评论等）。</p>
-<p>在开始之前我们需要做一个工作，打开 post.js ，将<code class="pale">Post.get</code>修改为<code class="pale">Post.getAll</code>，同时将 index.js 中<code class="pale">Post.get</code>修改为<br><code class="pale">Post.getAll</code>。在 post.js 最后添加如下代码：</p>
+	  <h3 id="实现留言功能"><a href="#实现留言功能" class="headerlink" title="实现留言功能"></a>实现留言功能<hr></h3><p>一个完整的博客怎么能缺少留言功能呢，当然我们可以用第三方社会化评论插件，既然我们有了数据库，我们不妨把留言保存到自己的数据库里。</p>
+<p>我们设定：只有在文章页面才会显示留言板。</p>
+<p>打开 post.js ，修改<code class="pale">Post.prototype.save</code>中要存入的文档为：</p>
 <pre class="default"><code class="default">
-//获取一篇文章
-Post.getOne = function(name, day, title, callback) {
+var post = {
+    name: this.name,
+    time: time,
+    title:this.title,
+    post: this.post,
+    comments: []
+};
+</code></pre>
+
+<p>我们在文档里增加了 comments 键（数组），用来存储此文章上的留言（一个个对象）。为了也让留言支持 markdown 语法，我们将<code class="pale">Post.getOne</code>函数里的：</p>
+<pre class="default"><code class="default">
+doc.post = markdown.toHTML(doc.post);
+</code></pre>
+
+<p>修改为：</p>
+<pre class="default"><code class="default">
+if (doc) {
+  doc.post = markdown.toHTML(doc.post);
+  doc.comments.forEach(function (comment) {
+    comment.content = markdown.toHTML(comment.content);
+  });
+}
+</code></pre>
+
+<p>接下来我们在 models 下新建 comment.js 文件，添加如下代码：</p>
+<pre class="default"><code class="default">
+var mongodb = require('./db');
+
+function Comment(name, day, title, comment) {
+  this.name = name;
+  this.day = day;
+  this.title = title;
+  this.comment = comment;
+}
+
+module.exports = Comment;
+
+//存储一条留言信息
+Comment.prototype.save = function(callback) {
+  var name = this.name,
+      day = this.day,
+      title = this.title,
+      comment = this.comment;
   //打开数据库
   mongodb.open(function (err, db) {
     if (err) {
@@ -187,126 +231,89 @@ Post.getOne = function(name, day, title, callback) {
         mongodb.close();
         return callback(err);
       }
-      //根据用户名、发表日期及文章名进行查询
-      collection.findOne({
+      //通过用户名、时间及标题查找文档，并把一条留言对象添加到该文档的 comments 数组里
+      collection.update({
         "name": name,
         "time.day": day,
         "title": title
-      }, function (err, doc) {
-        mongodb.close();
-        if (err) {
-          return callback(err);
-        }
-        //解析 markdown 为 html
-        doc.post = markdown.toHTML(doc.post);
-        callback(null, doc);//返回查询的一篇文章
-      });
+      }, {
+        $push: {"comments": comment}
+      } , function (err) {
+          mongodb.close();
+          if (err) {
+            return callback(err);
+          }
+          callback(null);
+      });   
     });
   });
 };
 </code></pre>
 
-<p>简单解释一下：</p>
-<ul>
-<li><code class="pale">Post.getAll</code>：获取一个人的所有文章（传入参数 name）或获取所有人的文章（不传入参数）。</li>
-<li><code class="pale">Post.getOne</code>：根据用户名、发表日期及</li>
-</ul>
-<p>下面我们来实现用户页面和文章页面。</p>
-<p>打开 index.js ，在<code class="pale">router.post(&#39;/upload&#39;)</code>后添加如下代码：</p>
+<p>修改 index.js ，在<code class="pale">Post = require(&#39;../models/post.js&#39;)</code>后添加一行代码：</p>
 <pre class="default"><code class="default">
-router.get('/u/:name', function (req, res) {
-  //检查用户是否存在
-  User.get(req.params.name, function (err, user) {
-    if (!user) {
-      req.flash('error', '用户不存在!');
-      return res.redirect('/');//用户不存在则跳转到主页
-    }
-    //查询并返回该用户的所有文章
-    Post.getAll(user.name, function (err, posts) {
-      if (err) {
-        req.flash('error', err);
-        return res.redirect('/');
-      }
-      res.render('user', {
-        title: user.name,
-        posts: posts
-      });
-    });
-  });
-});
+Comment = require('../models/comment.js');
 </code></pre>
 
-<p>这里我们添加了一条路由规则<code class="pale">router.get(&#39;/u/:name&#39;)</code>，用来处理访问用户页的请求，然后从数据库取得该用户的数据并渲染 user.ejs 模版，生成页面并显示给用户。</p>
-<p>接下来我们添加文章页面的路由规则。<br>在<code class="pale">router.get(&#39;/u/:name&#39;)</code>后添加如下代码：</p>
+<p>这里我们创建了 comment 的模型文件，用于存储新的留言到数据库，并在 index.js 中引入以作后用。</p>
+<p>接下来我们创建 comment 的视图文件，在 views 文件夹下新建 comment.ejs ，添加如下代码(e.g. 首先要先插入一个留言再显示)：</p>
 <pre class="default"><code class="default">
-router.get('/u/:name/:day/:title', function (req, res) {
-  Post.getOne(req.params.name, req.params.day, req.params.title, function (err, post) {
+&lt;br /&gt;
+&lt;% post.comments.forEach(function (comment, index) { %&gt;
+  &lt;p&gt;&lt;a href="&lt;%= comment.website %&gt;"&gt;&lt;%= comment.name %&gt;&lt;/a&gt;
+  &lt;span class="info"&gt; 回复于 &lt;%= comment.time %&gt;&lt;/span&gt;&lt;/p&gt;
+  &lt;p&gt;&lt;%- comment.content %&gt;&lt;/p&gt;
+&lt;% }) %&gt;
+
+&lt;form method="post" action="/u/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;
+&lt;% if (user) { %&gt;
+  姓名：&lt;input type="text" name="name" value="&lt;%= user.name %&gt;" /&gt;&lt;br /&gt;
+  邮箱：&lt;input type="text" name="email" value="&lt;%= user.email %&gt;" /&gt;&lt;br /&gt;
+  网址：&lt;input type="text" name="website" value="/u/&lt;%= user.name %&gt;" /&gt;&lt;br /&gt;
+&lt;% } else { %&gt;
+  姓名：&lt;input type="text" name="name" /&gt;&lt;br /&gt;
+  邮箱：&lt;input type="text" name="email" /&gt;&lt;br /&gt;
+  网址：&lt;input type="text" name="website" value="http://" /&gt;&lt;br /&gt;
+&lt;% } %&gt;
+  &lt;textarea name="content" rows="5" cols="80"&gt;&lt;/textarea&gt;&lt;br /&gt;
+  &lt;input type="submit" value="留言" /&gt;
+&lt;/form&gt;
+</code></pre>
+
+<p>注意：这里根据用户登录状态的不同，显示不同的提示信息。还需注意的一点是，未登录的用户在留言的时候， 网址 这一项需要加上<code class="pale">http://</code>前缀，否则在生成连接的时候会基于当前 url （本地是 localhost:3000）。</p>
+<p>打开 article.ejs ，在<code class="pale">&lt;%- include footer %&gt;</code>前添加一行代码：</p>
+<pre class="default"><code class="default">
+&lt;%- include comment %&gt;
+</code></pre>
+
+<p>这样我们就在文章页面引入了留言模块。</p>
+<p>最后，修改 index.js ，注册留言的 POST 响应，在<code class="pale">router.get(&#39;/u/:name/:day/:title&#39;)</code>后添加如下代码：</p>
+<pre class="default"><code class="default">
+router.post('/u/:name/:day/:title', function (req, res) {
+  var date = new Date(),
+      time = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +
+             date.getHours() + ":" + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes());
+  var comment = {
+      name: req.body.name,
+      email: req.body.email,
+      website: req.body.website,
+      time: time,
+      content: req.body.content
+  };
+  var newComment = new Comment(req.params.name, req.params.day, req.params.title, comment);
+  newComment.save(function (err) {
     if (err) {
       req.flash('error', err);
-      return res.redirect('/');
+      return res.redirect('back');
     }
-    res.render('article', {
-      title: req.params.title,
-      post: post
-    });
+    req.flash('success', '留言成功!');
+    res.redirect('back');
   });
 });
 </code></pre>
 
-<p>最后，我们创建用户页面和文章页面的模版文件。</p>
-<p>在 views 文件夹下新建 user.ejs，添加如下代码，同时也将 index.ejs 也修改成如下代码：</p>
-<pre class="default"><code class="default">
-&lt;%- include header %&gt;
-&lt;%- include alert %&gt;
-&lt;% posts.forEach(function (post, index) { %&gt;
-  &lt;p&gt;&lt;h2&gt;&lt;a href="/u/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;&lt;%= post.title %&gt;&lt;/a&gt;&lt;/h2&gt;&lt;/p&gt;
-  &lt;p class="info"&gt;
-    作者：&lt;a href="/u/&lt;%= post.name %&gt;"&gt;&lt;%= post.name %&gt;&lt;/a&gt; |
-    日期：&lt;%= post.time.minute %&gt;
-  &lt;/p&gt;
-  &lt;p&gt;&lt;%- post.post %&gt;&lt;/p&gt;
-&lt;% }) %&gt;
-&lt;%- include footer %&gt;
-</code></pre>
-
-<p>在 views 文件夹下新建 article.ejs ，添加如下代码：</p>
-<pre class="default"><code class="default">
-&lt;%- include header %&gt;
-&lt;%- include alert %&gt;
-&lt;p class="info"&gt;
-  作者：&lt;a href="/u/&lt;%= post.name %&gt;"&gt;&lt;%= post.name %&gt;&lt;/a&gt; |
-  日期：&lt;%= post.time.minute %&gt;
-&lt;/p&gt;
-&lt;p&gt;&lt;%- post.post %&gt;&lt;/p&gt;
-&lt;%- include footer %&gt;
-</code></pre>
-
-<p>然后将 index.ejs 中的 href 更改如下：</p>
-<pre class="default"><code class="default">
-&lt;%- include header %&gt;
-&lt;%- include alert %&gt;
-&lt;div class="hero-unit"&gt;
-  &lt;h1&gt;欢迎来到 简易博客&lt;/h1&gt;
-  &lt;p&gt;简易博客 是一个基于 Node.js 的微博系统。&lt;/p&gt;
-  &lt;p&gt;
-    &lt;a class="btn btn-primary btn-large" href="/login"&gt;登录&lt;/a&gt;
-    &lt;a class="btn btn-large" href="/reg"&gt;立即注册&lt;/a&gt;
-  &lt;/p&gt;
-&lt;/div&gt;
-&lt;% posts.forEach(function (post, index) { %&gt;
-  &lt;p&gt;&lt;h2&gt;&lt;a href="u/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;&lt;%= post.title %&gt;&lt;/a&gt;&lt;/h2&gt;&lt;/p&gt;
-  &lt;p class="info"&gt;
-    作者：&lt;a href="u/&lt;%= post.name %&gt;"&gt;&lt;%= post.name %&gt;&lt;/a&gt; |
-    日期：&lt;%= post.time.minute %&gt;
-  &lt;/p&gt;
-  &lt;p&gt;&lt;%- post.post %&gt;&lt;/p&gt;
-&lt;% }) %&gt;
-&lt;%- include footer %&gt;
-</code></pre>
-
-<p>现在，我们给博客添加了用户页面和文章页面。示例：</p>
-<p>用户页面<br><img src="/img/blog/4.1.png" alt=""></p>
-<p>文章页面<br><img src="/img/blog/4.2.png" alt=""></p>
+<p>注意：这里我们使用<code class="pale">res.redirect(&#39;back&#39;);</code>，即留言成功后返回到该文章页。</p>
+<p>现在，我们就给博客添加了留言的功能。</p>
 	  
 	</div>
 
@@ -316,13 +323,13 @@ router.get('/u/:name/:day/:title', function (req, res) {
 <ul class="pagination">
 	 
 				
-    	<li class="prev"><a href="/2016/08/12/搭建一个简单的博客-Lesson-5-1/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
+    	<li class="prev"><a href="/2016/08/12/搭建一个简单的博客-Lesson-7/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
   		
 
         <li><a href="/archives"><i class="fa fa-archive"></i>Archive</a></li>
 
 		
-		   <li class="next"><a href="/2016/08/11/搭建一个简单的博客-Lesson-3-1/" class="alignright next">Next<i class="fa fa-arrow-circle-o-right"></i></a></li>         
+		   <li class="next"><a href="/2016/08/12/搭建一个简单的博客-Lesson-5-1/" class="alignright next">Next<i class="fa fa-arrow-circle-o-right"></i></a></li>         
         
 	
 </ul>

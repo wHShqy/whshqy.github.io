@@ -4,6 +4,549 @@
   
     
     <entry>
+      <title><![CDATA[搭建一个简单的博客 Lesson 8]]></title>
+      <url>http://yoursite.com/2016/08/12/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8D%9A%E5%AE%A2-Lesson-8/</url>
+      <content type="html"></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[搭建一个简单的博客 Lesson 7]]></title>
+      <url>http://yoursite.com/2016/08/12/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8D%9A%E5%AE%A2-Lesson-7/</url>
+      <content type="html"><![CDATA[<h3 id="实现分页功能"><a href="#实现分页功能" class="headerlink" title="实现分页功能"></a>实现分页功能<hr></h3><p>现在我们给博客的主页和用户页面增加分页功能。</p>
+<p>我们设定：主页和用户页面每页最多显示十篇文章。</p>
+<p>这里我们要用到 mongodb 的 skip 和 limit 操作，具体可查阅《mongodb权威指南》。</p>
+<p>打开 post.js ，把<code class="pale">Post.getAll</code>函数修改如下：</p>
+<pre class="default"><code class="default">
+//一次获取十篇文章
+Post.getTen = function(name, page, callback) {
+  //打开数据库
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    //读取 posts 集合
+    db.collection('posts', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      var query = {};
+      if (name) {
+        query.name = name;
+      }
+      //使用 count 返回特定查询的文档数 total
+      collection.count(query, function (err, total) {
+        //根据 query 对象查询，并跳过前 (page-1)&#42;10 个结果，返回之后的 10 个结果
+        collection.find(query, {
+          skip: (page - 1)&#42;10,
+          limit: 10
+        }).sort({
+          time: -1
+        }).toArray(function (err, docs) {
+          mongodb.close();
+          if (err) {
+            return callback(err);
+          }
+          //解析 markdown 为 html
+          docs.forEach(function (doc) {
+            doc.post = markdown.toHTML(doc.post);
+          });  
+          callback(null, docs, total);
+        });
+      });
+    });
+  });
+};
+</code></pre>
+
+<p>打开 index.js ，修改<code class="pale">router.get(&#39;/&#39;, function(req, res, next) {</code>如下：</p>
+<pre class="default"><code class="default">
+router.get('/', function (req, res) {
+  //判断是否是第一页，并把请求的页数转换成 number 类型
+  var page = parseInt(req.query.p) || 1;
+  //查询并返回第 page 页的 10 篇文章
+  Post.getTen(null, page, function (err, posts, total) {
+    if (err) {
+      posts = [];
+    }
+    res.render('index', {
+      title: '主页',
+      posts: posts,
+      page: page,
+      isFirstPage: (page - 1) == 0,
+      isLastPage: ((page - 1) * 10 + posts.length) == total
+    });
+  });
+});
+</code></pre>
+
+<p>注意：这里通过<code class="pale">req.query.p</code>获取的页数为字符串形式，我们需要通过<code class="pale">parseInt()</code>把它转换成数字以作后用。同时把<code class="pale">Post.getAll</code>改成了<code class="pale">Post.getTen</code>。</p>
+<p>修改<code class="pale">router.get(&#39;/u/:name&#39;)</code>如下：</p>
+<pre class="default"><code class="default">
+router.get('/u/:name', function (req, res) {
+  var page = parseInt(req.query.p) || 1;
+  //检查用户是否存在
+  User.get(req.params.name, function (err, user) {
+    if (!user) {
+      req.flash('error', '用户不存在!');
+      return res.redirect('/');
+    }
+    //查询并返回该用户第 page 页的 10 篇文章
+    Post.getTen(user.name, page, function (err, posts, total) {
+      if (err) {
+        req.flash('error', err);
+        return res.redirect('/');
+      }
+      res.render('user', {
+        title: user.name,
+        posts: posts,
+        page: page,
+        isFirstPage: (page - 1) == 0,
+        isLastPage: ((page - 1) * 10 + posts.length) == total
+      });
+    });
+  });
+});
+</code></pre>
+
+<p>接下来在 views 文件夹下新建 paging.ejs ，添加如下代码：</p>
+<pre class="default"><code class="default">
+&lt;br /&gt;
+&lt;div&gt;
+  &lt;% if (!isFirstPage) { %&gt;
+    &lt;span class="prepage"&gt;&lt;a title="上一页" href="?p=&lt;%= page-1 %&gt;"&gt;上一页&lt;/a&gt;&lt;/span&gt;
+  &lt;% } %&gt;
+
+  &lt;% if (!isLastPage) { %&gt;
+    &lt;span class="nextpage"&gt;&lt;a title="下一页" href="?p=&lt;%= page+1 %&gt;"&gt;下一页&lt;/a&gt;&lt;/span&gt;
+  &lt;% } %&gt;
+&lt;/div&gt;
+</code></pre>
+
+<p>这里通过<code class="pale">if(!isFirstPage)</code>判断是否为第一页，不是第一页则显示 “上一页” ；通过<code class="pale">if(!isLastPage)</code>判断是否为最后一页，不是最后一页则显示 “下一页” 。</p>
+<p>接下来在主页和用户页引入分页。修改 index.ejs 和 user.ejs ，在<code class="pale">&lt;%- include footer %&gt;</code>前添加一行代码：</p>
+<pre class="default"><code class="default">
+&lt;%- include paging %&gt;
+</code></pre>
+
+<p>在主页和用户页面引入分页模块。</p>
+<p>最后，在 style.css 中添加以下样式：</p>
+<pre class="default"><code class="default">
+.prepage a {
+  float: left;
+  text-decoration: none;
+  padding: .5em 1em;
+  color: #ff0000;
+  font-weight: bold;
+}
+
+.nextpage a {
+  float: right;
+  text-decoration: none;
+  padding: .5em 1em;
+  color: #ff0000;
+  font-weight: bold;
+}
+
+.prepage a:hover, .nextpage a:hover {
+  text-decoration: none;
+  background-color: #ff0000;
+  color: #f9f9f9;
+  -webkit-transition: color .2s linear;
+}
+</code></pre>
+
+<p>现在，我们实现了博客的分页功能。</p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[搭建一个简单的博客 Lesson 6]]></title>
+      <url>http://yoursite.com/2016/08/12/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8D%9A%E5%AE%A2-Lesson-6/</url>
+      <content type="html"><![CDATA[<h3 id="实现留言功能"><a href="#实现留言功能" class="headerlink" title="实现留言功能"></a>实现留言功能<hr></h3><p>一个完整的博客怎么能缺少留言功能呢，当然我们可以用第三方社会化评论插件，既然我们有了数据库，我们不妨把留言保存到自己的数据库里。</p>
+<p>我们设定：只有在文章页面才会显示留言板。</p>
+<p>打开 post.js ，修改<code class="pale">Post.prototype.save</code>中要存入的文档为：</p>
+<pre class="default"><code class="default">
+var post = {
+    name: this.name,
+    time: time,
+    title:this.title,
+    post: this.post,
+    comments: []
+};
+</code></pre>
+
+<p>我们在文档里增加了 comments 键（数组），用来存储此文章上的留言（一个个对象）。为了也让留言支持 markdown 语法，我们将<code class="pale">Post.getOne</code>函数里的：</p>
+<pre class="default"><code class="default">
+doc.post = markdown.toHTML(doc.post);
+</code></pre>
+
+<p>修改为：</p>
+<pre class="default"><code class="default">
+if (doc) {
+  doc.post = markdown.toHTML(doc.post);
+  doc.comments.forEach(function (comment) {
+    comment.content = markdown.toHTML(comment.content);
+  });
+}
+</code></pre>
+
+<p>接下来我们在 models 下新建 comment.js 文件，添加如下代码：</p>
+<pre class="default"><code class="default">
+var mongodb = require('./db');
+
+function Comment(name, day, title, comment) {
+  this.name = name;
+  this.day = day;
+  this.title = title;
+  this.comment = comment;
+}
+
+module.exports = Comment;
+
+//存储一条留言信息
+Comment.prototype.save = function(callback) {
+  var name = this.name,
+      day = this.day,
+      title = this.title,
+      comment = this.comment;
+  //打开数据库
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    //读取 posts 集合
+    db.collection('posts', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      //通过用户名、时间及标题查找文档，并把一条留言对象添加到该文档的 comments 数组里
+      collection.update({
+        "name": name,
+        "time.day": day,
+        "title": title
+      }, {
+        $push: {"comments": comment}
+      } , function (err) {
+          mongodb.close();
+          if (err) {
+            return callback(err);
+          }
+          callback(null);
+      });   
+    });
+  });
+};
+</code></pre>
+
+<p>修改 index.js ，在<code class="pale">Post = require(&#39;../models/post.js&#39;)</code>后添加一行代码：</p>
+<pre class="default"><code class="default">
+Comment = require('../models/comment.js');
+</code></pre>
+
+<p>这里我们创建了 comment 的模型文件，用于存储新的留言到数据库，并在 index.js 中引入以作后用。</p>
+<p>接下来我们创建 comment 的视图文件，在 views 文件夹下新建 comment.ejs ，添加如下代码(e.g. 首先要先插入一个留言再显示)：</p>
+<pre class="default"><code class="default">
+&lt;br /&gt;
+&lt;% post.comments.forEach(function (comment, index) { %&gt;
+  &lt;p&gt;&lt;a href="&lt;%= comment.website %&gt;"&gt;&lt;%= comment.name %&gt;&lt;/a&gt;
+  &lt;span class="info"&gt; 回复于 &lt;%= comment.time %&gt;&lt;/span&gt;&lt;/p&gt;
+  &lt;p&gt;&lt;%- comment.content %&gt;&lt;/p&gt;
+&lt;% }) %&gt;
+
+&lt;form method="post" action="/u/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;
+&lt;% if (user) { %&gt;
+  姓名：&lt;input type="text" name="name" value="&lt;%= user.name %&gt;" /&gt;&lt;br /&gt;
+  邮箱：&lt;input type="text" name="email" value="&lt;%= user.email %&gt;" /&gt;&lt;br /&gt;
+  网址：&lt;input type="text" name="website" value="/u/&lt;%= user.name %&gt;" /&gt;&lt;br /&gt;
+&lt;% } else { %&gt;
+  姓名：&lt;input type="text" name="name" /&gt;&lt;br /&gt;
+  邮箱：&lt;input type="text" name="email" /&gt;&lt;br /&gt;
+  网址：&lt;input type="text" name="website" value="http://" /&gt;&lt;br /&gt;
+&lt;% } %&gt;
+  &lt;textarea name="content" rows="5" cols="80"&gt;&lt;/textarea&gt;&lt;br /&gt;
+  &lt;input type="submit" value="留言" /&gt;
+&lt;/form&gt;
+</code></pre>
+
+<p>注意：这里根据用户登录状态的不同，显示不同的提示信息。还需注意的一点是，未登录的用户在留言的时候， 网址 这一项需要加上<code class="pale">http://</code>前缀，否则在生成连接的时候会基于当前 url （本地是 localhost:3000）。</p>
+<p>打开 article.ejs ，在<code class="pale">&lt;%- include footer %&gt;</code>前添加一行代码：</p>
+<pre class="default"><code class="default">
+&lt;%- include comment %&gt;
+</code></pre>
+
+<p>这样我们就在文章页面引入了留言模块。</p>
+<p>最后，修改 index.js ，注册留言的 POST 响应，在<code class="pale">router.get(&#39;/u/:name/:day/:title&#39;)</code>后添加如下代码：</p>
+<pre class="default"><code class="default">
+router.post('/u/:name/:day/:title', function (req, res) {
+  var date = new Date(),
+      time = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +
+             date.getHours() + ":" + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes());
+  var comment = {
+      name: req.body.name,
+      email: req.body.email,
+      website: req.body.website,
+      time: time,
+      content: req.body.content
+  };
+  var newComment = new Comment(req.params.name, req.params.day, req.params.title, comment);
+  newComment.save(function (err) {
+    if (err) {
+      req.flash('error', err);
+      return res.redirect('back');
+    }
+    req.flash('success', '留言成功!');
+    res.redirect('back');
+  });
+});
+</code></pre>
+
+<p>注意：这里我们使用<code class="pale">res.redirect(&#39;back&#39;);</code>，即留言成功后返回到该文章页。</p>
+<p>现在，我们就给博客添加了留言的功能。</p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[搭建一个简单的博客 Lesson 5.1]]></title>
+      <url>http://yoursite.com/2016/08/12/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8D%9A%E5%AE%A2-Lesson-5-1/</url>
+      <content type="html"><![CDATA[<h3 id="增加编辑与删除功能"><a href="#增加编辑与删除功能" class="headerlink" title="增加编辑与删除功能"></a>增加编辑与删除功能<hr></h3><p>现在，我们来给博客添加编辑文章与删除文章的功能。</p>
+<p>我们设定：当一个用户在线时，只允许他在自己发表的文章页进行编辑或删除，编辑时，只能编辑文章内容，不能编辑文章标题。</p>
+<p>打开 style.css ，添加如下样式：</p>
+<pre class="default"><code class="default">
+.edit {
+  margin: 3px;
+  padding: 2px 5px;
+  border-radius: 3px;
+  background-color: #f3f3f3;
+  color: #333;
+  font-size: 13px;
+}
+
+.edit:hover {
+  text-decoration: none;
+  background-color: #f00;
+  color: #fff;
+  -webkit-transition: color .2s linear;
+}
+</code></pre>
+
+<p>打开 article.ejs ，将代码修改成如下：</p>
+<pre class="default"><code class="default">
+&lt;%- include header %&gt;
+&lt;%- include alert %&gt;
+&lt;p&gt;
+  &lt;span&gt;
+    &lt;a class="edit" href="/edit/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;编辑&lt;/a&gt;
+  &lt;/span&gt;
+  &lt;span&gt;
+    &lt;a class="edit" href="/remove/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;删除&lt;/a&gt;
+  &lt;/span&gt;
+&lt;/p&gt;
+&lt;p class="info"&gt;
+  作者：&lt;a href="/u/&lt;%= post.name %&gt;"&gt;&lt;%= post.name %&gt;&lt;/a&gt; |
+  日期：&lt;%= post.time.minute %&gt;
+&lt;/p&gt;
+&lt;p&gt;&lt;%- post.post %&gt;&lt;/p&gt;
+&lt;%- include footer %&gt;
+</code></pre>
+
+<p>至此，我们只是在文章页面添加了编辑和删除文章的链接。接下来，我们注册这两个链接的点击事件的响应。</p>
+<p>打开 post.js ，在最后添加如下代码：</p>
+<pre class="default"><code class="default">
+//返回原始发表的内容（markdown 格式）
+Post.edit = function(name, day, title, callback) {
+  //打开数据库
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    //读取 posts 集合
+    db.collection('posts', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      //根据用户名、发表日期及文章名进行查询
+      collection.findOne({
+        "name": name,
+        "time.day": day,
+        "title": title
+      }, function (err, doc) {
+        mongodb.close();
+        if (err) {
+          return callback(err);
+        }
+        callback(null, doc);//返回查询的一篇文章（markdown 格式）
+      });
+    });
+  });
+};
+</code></pre>
+
+<p>打开 index.js ，在<code class="pale">router.get(&#39;/u/:name/:day/:title&#39;)</code>后添加如下代码：</p>
+<pre class="default"><code class="default">
+router.get('/edit/:name/:day/:title', checkLogin);
+router.get('/edit/:name/:day/:title', function (req, res) {
+  var currentUser = req.session.user;
+  Post.edit(currentUser.name, req.params.day, req.params.title, function (err, post) {
+    if (err) {
+      req.flash('error', err);
+      return res.redirect('back');
+    }
+    res.render('edit', {
+      title: '编辑',
+      post: post
+    });
+  });
+});
+</code></pre>
+
+<p>在 views 下新建 edit.ejs ，添加如下代码：</p>
+<pre class="default"><code class="default">
+&lt;%- include header %&gt;
+&lt;%- include alert %&gt;
+&lt;form method="post" action="/edit/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;
+  标题：&lt;br /&gt;
+  &lt;input type="text" name="title" value="&lt;%= post.title %&gt;" disabled="disabled" /&gt;&lt;br /&gt;
+  正文：&lt;br /&gt;
+  &lt;textarea name="post" rows="20" cols="100"&gt;&lt;%= post.post %&gt;&lt;/textarea&gt;&lt;br /&gt;
+  &lt;input type="submit" value="保存修改" /&gt;
+&lt;/form&gt;
+&lt;%- include footer %&gt;
+</code></pre>
+
+<p>现在，运行我们的博客看看吧。在文章页面，当我们点击 编辑 后就会跳转到该文章对应的编辑页面了。接下来我们实现将修改后的文章提交到数据库。</p>
+<p>打开 post.js ，在最后添加如下代码：</p>
+<pre class="default"><code class="default">
+//更新一篇文章及其相关信息
+Post.update = function(name, day, title, post, callback) {
+  //打开数据库
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    //读取 posts 集合
+    db.collection('posts', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      //更新文章内容
+      collection.update({
+        "name": name,
+        "time.day": day,
+        "title": title
+      }, {
+        $set: {post: post}
+      }, function (err) {
+        mongodb.close();
+        if (err) {
+          return callback(err);
+        }
+        callback(null);
+      });
+    });
+  });
+};
+</code></pre>
+
+<p>打开 index.js ，在<code class="pale">router.get(&#39;/edit/:name/:day/:title&#39;)</code>后添加如下代码：</p>
+<pre class="default"><code class="default">
+router.get('/edit/:name/:day/:title', checkLogin);
+router.get('/edit/:name/:day/:title', function (req, res) {
+  var currentUser = req.session.user;
+  Post.update(currentUser.name, req.params.day, req.params.title, req.body.post, function (err) {
+    var url = encodeURI('/u/' + req.params.name + '/' + req.params.day + '/' + req.params.title);
+    if (err) {
+      req.flash('error', err);
+      return res.redirect(url);//出错！返回文章页
+    }
+    req.flash('success', '修改成功!');
+    res.redirect(url);//成功！返回文章页
+  });
+});
+</code></pre>
+
+<p>现在，我们就可以编辑并保存文章了。赶紧试试吧！</p>
+<p>接下来，我们实现删除文章的功能。打开 post.js ，在最后添加如下代码：</p>
+<pre class="default"><code class="default">
+//删除一篇文章
+Post.remove = function(name, day, title, callback) {
+  //打开数据库
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    //读取 posts 集合
+    db.collection('posts', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      //根据用户名、日期和标题查找并删除一篇文章
+      collection.remove({
+        "name": name,
+        "time.day": day,
+        "title": title
+      }, {
+        w: 1
+      }, function (err) {
+        mongodb.close();
+        if (err) {
+          return callback(err);
+        }
+        callback(null);
+      });
+    });
+  });
+};
+</code></pre>
+
+<p>打开 index.js ，在<code class="pale">router.get(&#39;/edit/:name/:day/:title&#39;)</code>后添加如下代码：</p>
+<pre class="default"><code class="default">
+router.get('/remove/:name/:day/:title', checkLogin);
+router.get('/remove/:name/:day/:title', function (req, res) {
+  var currentUser = req.session.user;
+  Post.remove(currentUser.name, req.params.day, req.params.title, function (err) {
+    if (err) {
+      req.flash('error', err);
+      return res.redirect('back');
+    }
+    req.flash('success', '删除成功!');
+    res.redirect('/');
+  });
+});
+</code></pre>
+
+<p>至此我们完成了大部分的工作，接下来我们实现页面权限的控制。假如你现在注册了两个帐号 A 和 B，那么当 B 访问 A 的用户页面时，也会出现编辑和删除的选项，虽然点击后并不能编辑和删除 A 的文章。那怎么才能实现一个账号只能编辑和删除自己发表的文章呢？很简单，添加一个判断即可。打开 article.ejs ，将：</p>
+<pre class="default"><code class="default">
+&lt;span&gt;
+  &lt;a class="edit" href="/edit/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;编辑&lt;/a&gt;
+&lt;/span&gt;
+&lt;span&gt;
+  &lt;a class="edit" href="/remove/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;删除&lt;/a&gt;
+&lt;/span&gt;
+</code></pre>
+
+<p>修改为：</p>
+<pre class="default"><code class="default">
+&lt;% if (user && (user.name == post.name)) { %&gt;
+  &lt;span&gt;
+    &lt;a class="edit" href="/edit/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;编辑&lt;/a&gt;
+  &lt;/span&gt;
+  &lt;span&gt;
+    &lt;a class="edit" href="/remove/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;删除&lt;/a&gt;
+  &lt;/span&gt;
+&lt;% } %&gt;
+</code></pre>
+
+<p>以上代码的意思是：通过检测 session 中的用户名是否存在，若存在且和当前文章页面的作者名相同，则显示编辑和删除按钮，否则不显示。</p>
+<p>现在，我们完成了给博客添加编辑文章与删除文章的功能。</p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[搭建一个简单的博客 Lesson 4.1]]></title>
       <url>http://yoursite.com/2016/08/12/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8D%9A%E5%AE%A2-Lesson-4-1/</url>
       <content type="html"><![CDATA[<h3 id="实现用户页面和文章页面"><a href="#实现用户页面和文章页面" class="headerlink" title="实现用户页面和文章页面"></a>实现用户页面和文章页面<hr></h3><p>现在，我们来给博客添加用户页面和文章页面。</p>

@@ -3,17 +3,21 @@
 <head>
   <meta charset="utf-8">
   
-  <title>搭建一个简单的博客 Lesson 4.1 | Whiteshadow&#39;s Blog</title>
+  <title>搭建一个简单的博客 Lesson 5.1 | Whiteshadow&#39;s Blog</title>
   <meta name="author" content="Whiteshadow">
   
-  <meta name="description" content="实现用户页面和文章页面现在，我们来给博客添加用户页面和文章页面。
-所谓用户页面就是当点击某个用户名链接时，跳转到：域名/u/用户名，并列出该用户的所有文章。同理，文章页面就是当点击某篇文章标题时，跳转到：域名/u/用户名/时间/文章名，进入到该文章的页面（也许还有该文章的评论等）。
-在开始之前我们需">
+  <meta name="description" content="增加编辑与删除功能现在，我们来给博客添加编辑文章与删除文章的功能。
+我们设定：当一个用户在线时，只允许他在自己发表的文章页进行编辑或删除，编辑时，只能编辑文章内容，不能编辑文章标题。
+打开 style.css ，添加如下样式：
+
+.edit {
+  margin: 3px;
+  padding: 2">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="搭建一个简单的博客 Lesson 4.1"/>
+  <meta property="og:title" content="搭建一个简单的博客 Lesson 5.1"/>
   <meta property="og:site_name" content="Whiteshadow&#39;s Blog"/>
 
   
@@ -150,7 +154,7 @@
 
 	
 		<div class="page-header page-header-inverse ">		
-			<h1 class="title title-inverse "> 搭建一个简单的博客 Lesson 4.1</h1>
+			<h1 class="title title-inverse "> 搭建一个简单的博客 Lesson 5.1</h1>
 		</div>		
 	
 
@@ -170,12 +174,52 @@
 	<div class="mypage">		
 	  		
 
-	  <h3 id="实现用户页面和文章页面"><a href="#实现用户页面和文章页面" class="headerlink" title="实现用户页面和文章页面"></a>实现用户页面和文章页面<hr></h3><p>现在，我们来给博客添加用户页面和文章页面。</p>
-<p>所谓用户页面就是当点击某个用户名链接时，跳转到：<code class="pale">域名/u/用户名</code>，并列出该用户的所有文章。<br>同理，文章页面就是当点击某篇文章标题时，跳转到：<code class="pale">域名/u/用户名/时间/文章名</code>，进入到该文章的页面（也许还有该文章<br>的评论等）。</p>
-<p>在开始之前我们需要做一个工作，打开 post.js ，将<code class="pale">Post.get</code>修改为<code class="pale">Post.getAll</code>，同时将 index.js 中<code class="pale">Post.get</code>修改为<br><code class="pale">Post.getAll</code>。在 post.js 最后添加如下代码：</p>
+	  <h3 id="增加编辑与删除功能"><a href="#增加编辑与删除功能" class="headerlink" title="增加编辑与删除功能"></a>增加编辑与删除功能<hr></h3><p>现在，我们来给博客添加编辑文章与删除文章的功能。</p>
+<p>我们设定：当一个用户在线时，只允许他在自己发表的文章页进行编辑或删除，编辑时，只能编辑文章内容，不能编辑文章标题。</p>
+<p>打开 style.css ，添加如下样式：</p>
 <pre class="default"><code class="default">
-//获取一篇文章
-Post.getOne = function(name, day, title, callback) {
+.edit {
+  margin: 3px;
+  padding: 2px 5px;
+  border-radius: 3px;
+  background-color: #f3f3f3;
+  color: #333;
+  font-size: 13px;
+}
+
+.edit:hover {
+  text-decoration: none;
+  background-color: #f00;
+  color: #fff;
+  -webkit-transition: color .2s linear;
+}
+</code></pre>
+
+<p>打开 article.ejs ，将代码修改成如下：</p>
+<pre class="default"><code class="default">
+&lt;%- include header %&gt;
+&lt;%- include alert %&gt;
+&lt;p&gt;
+  &lt;span&gt;
+    &lt;a class="edit" href="/edit/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;编辑&lt;/a&gt;
+  &lt;/span&gt;
+  &lt;span&gt;
+    &lt;a class="edit" href="/remove/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;删除&lt;/a&gt;
+  &lt;/span&gt;
+&lt;/p&gt;
+&lt;p class="info"&gt;
+  作者：&lt;a href="/u/&lt;%= post.name %&gt;"&gt;&lt;%= post.name %&gt;&lt;/a&gt; |
+  日期：&lt;%= post.time.minute %&gt;
+&lt;/p&gt;
+&lt;p&gt;&lt;%- post.post %&gt;&lt;/p&gt;
+&lt;%- include footer %&gt;
+</code></pre>
+
+<p>至此，我们只是在文章页面添加了编辑和删除文章的链接。接下来，我们注册这两个链接的点击事件的响应。</p>
+<p>打开 post.js ，在最后添加如下代码：</p>
+<pre class="default"><code class="default">
+//返回原始发表的内容（markdown 格式）
+Post.edit = function(name, day, title, callback) {
   //打开数据库
   mongodb.open(function (err, db) {
     if (err) {
@@ -197,116 +241,172 @@ Post.getOne = function(name, day, title, callback) {
         if (err) {
           return callback(err);
         }
-        //解析 markdown 为 html
-        doc.post = markdown.toHTML(doc.post);
-        callback(null, doc);//返回查询的一篇文章
+        callback(null, doc);//返回查询的一篇文章（markdown 格式）
       });
     });
   });
 };
 </code></pre>
 
-<p>简单解释一下：</p>
-<ul>
-<li><code class="pale">Post.getAll</code>：获取一个人的所有文章（传入参数 name）或获取所有人的文章（不传入参数）。</li>
-<li><code class="pale">Post.getOne</code>：根据用户名、发表日期及</li>
-</ul>
-<p>下面我们来实现用户页面和文章页面。</p>
-<p>打开 index.js ，在<code class="pale">router.post(&#39;/upload&#39;)</code>后添加如下代码：</p>
+<p>打开 index.js ，在<code class="pale">router.get(&#39;/u/:name/:day/:title&#39;)</code>后添加如下代码：</p>
 <pre class="default"><code class="default">
-router.get('/u/:name', function (req, res) {
-  //检查用户是否存在
-  User.get(req.params.name, function (err, user) {
-    if (!user) {
-      req.flash('error', '用户不存在!');
-      return res.redirect('/');//用户不存在则跳转到主页
-    }
-    //查询并返回该用户的所有文章
-    Post.getAll(user.name, function (err, posts) {
-      if (err) {
-        req.flash('error', err);
-        return res.redirect('/');
-      }
-      res.render('user', {
-        title: user.name,
-        posts: posts
-      });
-    });
-  });
-});
-</code></pre>
-
-<p>这里我们添加了一条路由规则<code class="pale">router.get(&#39;/u/:name&#39;)</code>，用来处理访问用户页的请求，然后从数据库取得该用户的数据并渲染 user.ejs 模版，生成页面并显示给用户。</p>
-<p>接下来我们添加文章页面的路由规则。<br>在<code class="pale">router.get(&#39;/u/:name&#39;)</code>后添加如下代码：</p>
-<pre class="default"><code class="default">
-router.get('/u/:name/:day/:title', function (req, res) {
-  Post.getOne(req.params.name, req.params.day, req.params.title, function (err, post) {
+router.get('/edit/:name/:day/:title', checkLogin);
+router.get('/edit/:name/:day/:title', function (req, res) {
+  var currentUser = req.session.user;
+  Post.edit(currentUser.name, req.params.day, req.params.title, function (err, post) {
     if (err) {
       req.flash('error', err);
-      return res.redirect('/');
+      return res.redirect('back');
     }
-    res.render('article', {
-      title: req.params.title,
+    res.render('edit', {
+      title: '编辑',
       post: post
     });
   });
 });
 </code></pre>
 
-<p>最后，我们创建用户页面和文章页面的模版文件。</p>
-<p>在 views 文件夹下新建 user.ejs，添加如下代码，同时也将 index.ejs 也修改成如下代码：</p>
+<p>在 views 下新建 edit.ejs ，添加如下代码：</p>
 <pre class="default"><code class="default">
 &lt;%- include header %&gt;
 &lt;%- include alert %&gt;
-&lt;% posts.forEach(function (post, index) { %&gt;
-  &lt;p&gt;&lt;h2&gt;&lt;a href="/u/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;&lt;%= post.title %&gt;&lt;/a&gt;&lt;/h2&gt;&lt;/p&gt;
-  &lt;p class="info"&gt;
-    作者：&lt;a href="/u/&lt;%= post.name %&gt;"&gt;&lt;%= post.name %&gt;&lt;/a&gt; |
-    日期：&lt;%= post.time.minute %&gt;
-  &lt;/p&gt;
-  &lt;p&gt;&lt;%- post.post %&gt;&lt;/p&gt;
-&lt;% }) %&gt;
+&lt;form method="post" action="/edit/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;
+  标题：&lt;br /&gt;
+  &lt;input type="text" name="title" value="&lt;%= post.title %&gt;" disabled="disabled" /&gt;&lt;br /&gt;
+  正文：&lt;br /&gt;
+  &lt;textarea name="post" rows="20" cols="100"&gt;&lt;%= post.post %&gt;&lt;/textarea&gt;&lt;br /&gt;
+  &lt;input type="submit" value="保存修改" /&gt;
+&lt;/form&gt;
 &lt;%- include footer %&gt;
 </code></pre>
 
-<p>在 views 文件夹下新建 article.ejs ，添加如下代码：</p>
+<p>现在，运行我们的博客看看吧。在文章页面，当我们点击 编辑 后就会跳转到该文章对应的编辑页面了。接下来我们实现将修改后的文章提交到数据库。</p>
+<p>打开 post.js ，在最后添加如下代码：</p>
 <pre class="default"><code class="default">
-&lt;%- include header %&gt;
-&lt;%- include alert %&gt;
-&lt;p class="info"&gt;
-  作者：&lt;a href="/u/&lt;%= post.name %&gt;"&gt;&lt;%= post.name %&gt;&lt;/a&gt; |
-  日期：&lt;%= post.time.minute %&gt;
-&lt;/p&gt;
-&lt;p&gt;&lt;%- post.post %&gt;&lt;/p&gt;
-&lt;%- include footer %&gt;
+//更新一篇文章及其相关信息
+Post.update = function(name, day, title, post, callback) {
+  //打开数据库
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    //读取 posts 集合
+    db.collection('posts', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      //更新文章内容
+      collection.update({
+        "name": name,
+        "time.day": day,
+        "title": title
+      }, {
+        $set: {post: post}
+      }, function (err) {
+        mongodb.close();
+        if (err) {
+          return callback(err);
+        }
+        callback(null);
+      });
+    });
+  });
+};
 </code></pre>
 
-<p>然后将 index.ejs 中的 href 更改如下：</p>
+<p>打开 index.js ，在<code class="pale">router.get(&#39;/edit/:name/:day/:title&#39;)</code>后添加如下代码：</p>
 <pre class="default"><code class="default">
-&lt;%- include header %&gt;
-&lt;%- include alert %&gt;
-&lt;div class="hero-unit"&gt;
-  &lt;h1&gt;欢迎来到 简易博客&lt;/h1&gt;
-  &lt;p&gt;简易博客 是一个基于 Node.js 的微博系统。&lt;/p&gt;
-  &lt;p&gt;
-    &lt;a class="btn btn-primary btn-large" href="/login"&gt;登录&lt;/a&gt;
-    &lt;a class="btn btn-large" href="/reg"&gt;立即注册&lt;/a&gt;
-  &lt;/p&gt;
-&lt;/div&gt;
-&lt;% posts.forEach(function (post, index) { %&gt;
-  &lt;p&gt;&lt;h2&gt;&lt;a href="u/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;&lt;%= post.title %&gt;&lt;/a&gt;&lt;/h2&gt;&lt;/p&gt;
-  &lt;p class="info"&gt;
-    作者：&lt;a href="u/&lt;%= post.name %&gt;"&gt;&lt;%= post.name %&gt;&lt;/a&gt; |
-    日期：&lt;%= post.time.minute %&gt;
-  &lt;/p&gt;
-  &lt;p&gt;&lt;%- post.post %&gt;&lt;/p&gt;
-&lt;% }) %&gt;
-&lt;%- include footer %&gt;
+router.get('/edit/:name/:day/:title', checkLogin);
+router.get('/edit/:name/:day/:title', function (req, res) {
+  var currentUser = req.session.user;
+  Post.update(currentUser.name, req.params.day, req.params.title, req.body.post, function (err) {
+    var url = encodeURI('/u/' + req.params.name + '/' + req.params.day + '/' + req.params.title);
+    if (err) {
+      req.flash('error', err);
+      return res.redirect(url);//出错！返回文章页
+    }
+    req.flash('success', '修改成功!');
+    res.redirect(url);//成功！返回文章页
+  });
+});
 </code></pre>
 
-<p>现在，我们给博客添加了用户页面和文章页面。示例：</p>
-<p>用户页面<br><img src="/img/blog/4.1.png" alt=""></p>
-<p>文章页面<br><img src="/img/blog/4.2.png" alt=""></p>
+<p>现在，我们就可以编辑并保存文章了。赶紧试试吧！</p>
+<p>接下来，我们实现删除文章的功能。打开 post.js ，在最后添加如下代码：</p>
+<pre class="default"><code class="default">
+//删除一篇文章
+Post.remove = function(name, day, title, callback) {
+  //打开数据库
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    //读取 posts 集合
+    db.collection('posts', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      //根据用户名、日期和标题查找并删除一篇文章
+      collection.remove({
+        "name": name,
+        "time.day": day,
+        "title": title
+      }, {
+        w: 1
+      }, function (err) {
+        mongodb.close();
+        if (err) {
+          return callback(err);
+        }
+        callback(null);
+      });
+    });
+  });
+};
+</code></pre>
+
+<p>打开 index.js ，在<code class="pale">router.get(&#39;/edit/:name/:day/:title&#39;)</code>后添加如下代码：</p>
+<pre class="default"><code class="default">
+router.get('/remove/:name/:day/:title', checkLogin);
+router.get('/remove/:name/:day/:title', function (req, res) {
+  var currentUser = req.session.user;
+  Post.remove(currentUser.name, req.params.day, req.params.title, function (err) {
+    if (err) {
+      req.flash('error', err);
+      return res.redirect('back');
+    }
+    req.flash('success', '删除成功!');
+    res.redirect('/');
+  });
+});
+</code></pre>
+
+<p>至此我们完成了大部分的工作，接下来我们实现页面权限的控制。假如你现在注册了两个帐号 A 和 B，那么当 B 访问 A 的用户页面时，也会出现编辑和删除的选项，虽然点击后并不能编辑和删除 A 的文章。那怎么才能实现一个账号只能编辑和删除自己发表的文章呢？很简单，添加一个判断即可。打开 article.ejs ，将：</p>
+<pre class="default"><code class="default">
+&lt;span&gt;
+  &lt;a class="edit" href="/edit/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;编辑&lt;/a&gt;
+&lt;/span&gt;
+&lt;span&gt;
+  &lt;a class="edit" href="/remove/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;删除&lt;/a&gt;
+&lt;/span&gt;
+</code></pre>
+
+<p>修改为：</p>
+<pre class="default"><code class="default">
+&lt;% if (user && (user.name == post.name)) { %&gt;
+  &lt;span&gt;
+    &lt;a class="edit" href="/edit/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;编辑&lt;/a&gt;
+  &lt;/span&gt;
+  &lt;span&gt;
+    &lt;a class="edit" href="/remove/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;删除&lt;/a&gt;
+  &lt;/span&gt;
+&lt;% } %&gt;
+</code></pre>
+
+<p>以上代码的意思是：通过检测 session 中的用户名是否存在，若存在且和当前文章页面的作者名相同，则显示编辑和删除按钮，否则不显示。</p>
+<p>现在，我们完成了给博客添加编辑文章与删除文章的功能。</p>
 	  
 	</div>
 
@@ -316,13 +416,13 @@ router.get('/u/:name/:day/:title', function (req, res) {
 <ul class="pagination">
 	 
 				
-    	<li class="prev"><a href="/2016/08/12/搭建一个简单的博客-Lesson-5-1/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
+    	<li class="prev"><a href="/2016/08/12/搭建一个简单的博客-Lesson-6/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
   		
 
         <li><a href="/archives"><i class="fa fa-archive"></i>Archive</a></li>
 
 		
-		   <li class="next"><a href="/2016/08/11/搭建一个简单的博客-Lesson-3-1/" class="alignright next">Next<i class="fa fa-arrow-circle-o-right"></i></a></li>         
+		   <li class="next"><a href="/2016/08/12/搭建一个简单的博客-Lesson-4-1/" class="alignright next">Next<i class="fa fa-arrow-circle-o-right"></i></a></li>         
         
 	
 </ul>

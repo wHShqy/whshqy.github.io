@@ -3,17 +3,20 @@
 <head>
   <meta charset="utf-8">
   
-  <title>搭建一个简单的博客 Lesson 4.1 | Whiteshadow&#39;s Blog</title>
+  <title>搭建一个简单的博客 Lesson 7 | Whiteshadow&#39;s Blog</title>
   <meta name="author" content="Whiteshadow">
   
-  <meta name="description" content="实现用户页面和文章页面现在，我们来给博客添加用户页面和文章页面。
-所谓用户页面就是当点击某个用户名链接时，跳转到：域名/u/用户名，并列出该用户的所有文章。同理，文章页面就是当点击某篇文章标题时，跳转到：域名/u/用户名/时间/文章名，进入到该文章的页面（也许还有该文章的评论等）。
-在开始之前我们需">
+  <meta name="description" content="实现分页功能现在我们给博客的主页和用户页面增加分页功能。
+我们设定：主页和用户页面每页最多显示十篇文章。
+这里我们要用到 mongodb 的 skip 和 limit 操作，具体可查阅《mongodb权威指南》。
+打开 post.js ，把Post.getAll函数修改如下：
+
+//一次获取十篇文章">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="搭建一个简单的博客 Lesson 4.1"/>
+  <meta property="og:title" content="搭建一个简单的博客 Lesson 7"/>
   <meta property="og:site_name" content="Whiteshadow&#39;s Blog"/>
 
   
@@ -150,7 +153,7 @@
 
 	
 		<div class="page-header page-header-inverse ">		
-			<h1 class="title title-inverse "> 搭建一个简单的博客 Lesson 4.1</h1>
+			<h1 class="title title-inverse "> 搭建一个简单的博客 Lesson 7</h1>
 		</div>		
 	
 
@@ -170,12 +173,13 @@
 	<div class="mypage">		
 	  		
 
-	  <h3 id="实现用户页面和文章页面"><a href="#实现用户页面和文章页面" class="headerlink" title="实现用户页面和文章页面"></a>实现用户页面和文章页面<hr></h3><p>现在，我们来给博客添加用户页面和文章页面。</p>
-<p>所谓用户页面就是当点击某个用户名链接时，跳转到：<code class="pale">域名/u/用户名</code>，并列出该用户的所有文章。<br>同理，文章页面就是当点击某篇文章标题时，跳转到：<code class="pale">域名/u/用户名/时间/文章名</code>，进入到该文章的页面（也许还有该文章<br>的评论等）。</p>
-<p>在开始之前我们需要做一个工作，打开 post.js ，将<code class="pale">Post.get</code>修改为<code class="pale">Post.getAll</code>，同时将 index.js 中<code class="pale">Post.get</code>修改为<br><code class="pale">Post.getAll</code>。在 post.js 最后添加如下代码：</p>
+	  <h3 id="实现分页功能"><a href="#实现分页功能" class="headerlink" title="实现分页功能"></a>实现分页功能<hr></h3><p>现在我们给博客的主页和用户页面增加分页功能。</p>
+<p>我们设定：主页和用户页面每页最多显示十篇文章。</p>
+<p>这里我们要用到 mongodb 的 skip 和 limit 操作，具体可查阅《mongodb权威指南》。</p>
+<p>打开 post.js ，把<code class="pale">Post.getAll</code>函数修改如下：</p>
 <pre class="default"><code class="default">
-//获取一篇文章
-Post.getOne = function(name, day, title, callback) {
+//一次获取十篇文章
+Post.getTen = function(name, page, callback) {
   //打开数据库
   mongodb.open(function (err, db) {
     if (err) {
@@ -187,126 +191,133 @@ Post.getOne = function(name, day, title, callback) {
         mongodb.close();
         return callback(err);
       }
-      //根据用户名、发表日期及文章名进行查询
-      collection.findOne({
-        "name": name,
-        "time.day": day,
-        "title": title
-      }, function (err, doc) {
-        mongodb.close();
-        if (err) {
-          return callback(err);
-        }
-        //解析 markdown 为 html
-        doc.post = markdown.toHTML(doc.post);
-        callback(null, doc);//返回查询的一篇文章
+      var query = {};
+      if (name) {
+        query.name = name;
+      }
+      //使用 count 返回特定查询的文档数 total
+      collection.count(query, function (err, total) {
+        //根据 query 对象查询，并跳过前 (page-1)&#42;10 个结果，返回之后的 10 个结果
+        collection.find(query, {
+          skip: (page - 1)&#42;10,
+          limit: 10
+        }).sort({
+          time: -1
+        }).toArray(function (err, docs) {
+          mongodb.close();
+          if (err) {
+            return callback(err);
+          }
+          //解析 markdown 为 html
+          docs.forEach(function (doc) {
+            doc.post = markdown.toHTML(doc.post);
+          });  
+          callback(null, docs, total);
+        });
       });
     });
   });
 };
 </code></pre>
 
-<p>简单解释一下：</p>
-<ul>
-<li><code class="pale">Post.getAll</code>：获取一个人的所有文章（传入参数 name）或获取所有人的文章（不传入参数）。</li>
-<li><code class="pale">Post.getOne</code>：根据用户名、发表日期及</li>
-</ul>
-<p>下面我们来实现用户页面和文章页面。</p>
-<p>打开 index.js ，在<code class="pale">router.post(&#39;/upload&#39;)</code>后添加如下代码：</p>
+<p>打开 index.js ，修改<code class="pale">router.get(&#39;/&#39;, function(req, res, next) {</code>如下：</p>
+<pre class="default"><code class="default">
+router.get('/', function (req, res) {
+  //判断是否是第一页，并把请求的页数转换成 number 类型
+  var page = parseInt(req.query.p) || 1;
+  //查询并返回第 page 页的 10 篇文章
+  Post.getTen(null, page, function (err, posts, total) {
+    if (err) {
+      posts = [];
+    }
+    res.render('index', {
+      title: '主页',
+      posts: posts,
+      page: page,
+      isFirstPage: (page - 1) == 0,
+      isLastPage: ((page - 1) * 10 + posts.length) == total
+    });
+  });
+});
+</code></pre>
+
+<p>注意：这里通过<code class="pale">req.query.p</code>获取的页数为字符串形式，我们需要通过<code class="pale">parseInt()</code>把它转换成数字以作后用。同时把<code class="pale">Post.getAll</code>改成了<code class="pale">Post.getTen</code>。</p>
+<p>修改<code class="pale">router.get(&#39;/u/:name&#39;)</code>如下：</p>
 <pre class="default"><code class="default">
 router.get('/u/:name', function (req, res) {
+  var page = parseInt(req.query.p) || 1;
   //检查用户是否存在
   User.get(req.params.name, function (err, user) {
     if (!user) {
       req.flash('error', '用户不存在!');
-      return res.redirect('/');//用户不存在则跳转到主页
+      return res.redirect('/');
     }
-    //查询并返回该用户的所有文章
-    Post.getAll(user.name, function (err, posts) {
+    //查询并返回该用户第 page 页的 10 篇文章
+    Post.getTen(user.name, page, function (err, posts, total) {
       if (err) {
         req.flash('error', err);
         return res.redirect('/');
       }
       res.render('user', {
         title: user.name,
-        posts: posts
+        posts: posts,
+        page: page,
+        isFirstPage: (page - 1) == 0,
+        isLastPage: ((page - 1) * 10 + posts.length) == total
       });
     });
   });
 });
 </code></pre>
 
-<p>这里我们添加了一条路由规则<code class="pale">router.get(&#39;/u/:name&#39;)</code>，用来处理访问用户页的请求，然后从数据库取得该用户的数据并渲染 user.ejs 模版，生成页面并显示给用户。</p>
-<p>接下来我们添加文章页面的路由规则。<br>在<code class="pale">router.get(&#39;/u/:name&#39;)</code>后添加如下代码：</p>
+<p>接下来在 views 文件夹下新建 paging.ejs ，添加如下代码：</p>
 <pre class="default"><code class="default">
-router.get('/u/:name/:day/:title', function (req, res) {
-  Post.getOne(req.params.name, req.params.day, req.params.title, function (err, post) {
-    if (err) {
-      req.flash('error', err);
-      return res.redirect('/');
-    }
-    res.render('article', {
-      title: req.params.title,
-      post: post
-    });
-  });
-});
-</code></pre>
+&lt;br /&gt;
+&lt;div&gt;
+  &lt;% if (!isFirstPage) { %&gt;
+    &lt;span class="prepage"&gt;&lt;a title="上一页" href="?p=&lt;%= page-1 %&gt;"&gt;上一页&lt;/a&gt;&lt;/span&gt;
+  &lt;% } %&gt;
 
-<p>最后，我们创建用户页面和文章页面的模版文件。</p>
-<p>在 views 文件夹下新建 user.ejs，添加如下代码，同时也将 index.ejs 也修改成如下代码：</p>
-<pre class="default"><code class="default">
-&lt;%- include header %&gt;
-&lt;%- include alert %&gt;
-&lt;% posts.forEach(function (post, index) { %&gt;
-  &lt;p&gt;&lt;h2&gt;&lt;a href="/u/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;&lt;%= post.title %&gt;&lt;/a&gt;&lt;/h2&gt;&lt;/p&gt;
-  &lt;p class="info"&gt;
-    作者：&lt;a href="/u/&lt;%= post.name %&gt;"&gt;&lt;%= post.name %&gt;&lt;/a&gt; |
-    日期：&lt;%= post.time.minute %&gt;
-  &lt;/p&gt;
-  &lt;p&gt;&lt;%- post.post %&gt;&lt;/p&gt;
-&lt;% }) %&gt;
-&lt;%- include footer %&gt;
-</code></pre>
-
-<p>在 views 文件夹下新建 article.ejs ，添加如下代码：</p>
-<pre class="default"><code class="default">
-&lt;%- include header %&gt;
-&lt;%- include alert %&gt;
-&lt;p class="info"&gt;
-  作者：&lt;a href="/u/&lt;%= post.name %&gt;"&gt;&lt;%= post.name %&gt;&lt;/a&gt; |
-  日期：&lt;%= post.time.minute %&gt;
-&lt;/p&gt;
-&lt;p&gt;&lt;%- post.post %&gt;&lt;/p&gt;
-&lt;%- include footer %&gt;
-</code></pre>
-
-<p>然后将 index.ejs 中的 href 更改如下：</p>
-<pre class="default"><code class="default">
-&lt;%- include header %&gt;
-&lt;%- include alert %&gt;
-&lt;div class="hero-unit"&gt;
-  &lt;h1&gt;欢迎来到 简易博客&lt;/h1&gt;
-  &lt;p&gt;简易博客 是一个基于 Node.js 的微博系统。&lt;/p&gt;
-  &lt;p&gt;
-    &lt;a class="btn btn-primary btn-large" href="/login"&gt;登录&lt;/a&gt;
-    &lt;a class="btn btn-large" href="/reg"&gt;立即注册&lt;/a&gt;
-  &lt;/p&gt;
+  &lt;% if (!isLastPage) { %&gt;
+    &lt;span class="nextpage"&gt;&lt;a title="下一页" href="?p=&lt;%= page+1 %&gt;"&gt;下一页&lt;/a&gt;&lt;/span&gt;
+  &lt;% } %&gt;
 &lt;/div&gt;
-&lt;% posts.forEach(function (post, index) { %&gt;
-  &lt;p&gt;&lt;h2&gt;&lt;a href="u/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;&lt;%= post.title %&gt;&lt;/a&gt;&lt;/h2&gt;&lt;/p&gt;
-  &lt;p class="info"&gt;
-    作者：&lt;a href="u/&lt;%= post.name %&gt;"&gt;&lt;%= post.name %&gt;&lt;/a&gt; |
-    日期：&lt;%= post.time.minute %&gt;
-  &lt;/p&gt;
-  &lt;p&gt;&lt;%- post.post %&gt;&lt;/p&gt;
-&lt;% }) %&gt;
-&lt;%- include footer %&gt;
 </code></pre>
 
-<p>现在，我们给博客添加了用户页面和文章页面。示例：</p>
-<p>用户页面<br><img src="/img/blog/4.1.png" alt=""></p>
-<p>文章页面<br><img src="/img/blog/4.2.png" alt=""></p>
+<p>这里通过<code class="pale">if(!isFirstPage)</code>判断是否为第一页，不是第一页则显示 “上一页” ；通过<code class="pale">if(!isLastPage)</code>判断是否为最后一页，不是最后一页则显示 “下一页” 。</p>
+<p>接下来在主页和用户页引入分页。修改 index.ejs 和 user.ejs ，在<code class="pale">&lt;%- include footer %&gt;</code>前添加一行代码：</p>
+<pre class="default"><code class="default">
+&lt;%- include paging %&gt;
+</code></pre>
+
+<p>在主页和用户页面引入分页模块。</p>
+<p>最后，在 style.css 中添加以下样式：</p>
+<pre class="default"><code class="default">
+.prepage a {
+  float: left;
+  text-decoration: none;
+  padding: .5em 1em;
+  color: #ff0000;
+  font-weight: bold;
+}
+
+.nextpage a {
+  float: right;
+  text-decoration: none;
+  padding: .5em 1em;
+  color: #ff0000;
+  font-weight: bold;
+}
+
+.prepage a:hover, .nextpage a:hover {
+  text-decoration: none;
+  background-color: #ff0000;
+  color: #f9f9f9;
+  -webkit-transition: color .2s linear;
+}
+</code></pre>
+
+<p>现在，我们实现了博客的分页功能。</p>
 	  
 	</div>
 
@@ -316,13 +327,13 @@ router.get('/u/:name/:day/:title', function (req, res) {
 <ul class="pagination">
 	 
 				
-    	<li class="prev"><a href="/2016/08/12/搭建一个简单的博客-Lesson-5-1/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
+    	<li class="prev"><a href="/2016/08/12/搭建一个简单的博客-Lesson-8/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
   		
 
         <li><a href="/archives"><i class="fa fa-archive"></i>Archive</a></li>
 
 		
-		   <li class="next"><a href="/2016/08/11/搭建一个简单的博客-Lesson-3-1/" class="alignright next">Next<i class="fa fa-arrow-circle-o-right"></i></a></li>         
+		   <li class="next"><a href="/2016/08/12/搭建一个简单的博客-Lesson-6/" class="alignright next">Next<i class="fa fa-arrow-circle-o-right"></i></a></li>         
         
 	
 </ul>
