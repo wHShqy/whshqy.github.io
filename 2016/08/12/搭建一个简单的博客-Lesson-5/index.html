@@ -274,7 +274,7 @@ router.get('/edit/:name/:day/:title', function (req, res) {
   标题：&lt;br /&gt;
   &lt;input type="text" name="title" value="&lt;%= post.title %&gt;" disabled="disabled" /&gt;&lt;br /&gt;
   正文：&lt;br /&gt;
-  &lt;textarea name="post" rows="20" cols="100"&gt;&lt;%= post.post %&gt;&lt;/textarea&gt;&lt;br /&gt;
+  &lt;textarea class="post" name="post" rows="20"&gt;&lt;%= post.post %&gt;&lt;/textarea&gt;&lt;br /&gt;
   &lt;input type="submit" value="保存修改" /&gt;
 &lt;/form&gt;
 &lt;%- include footer %&gt;

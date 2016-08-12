@@ -6,6 +6,9 @@
   <title>搭建一个简单的博客 Lesson 8 | Whiteshadow&#39;s Blog</title>
   <meta name="author" content="Whiteshadow">
   
+  <meta name="description" content="增加存档页面现在我们来给博客增加存档功能，当进入存档页时，按年份和日期的降序列出所有的文章。
+首先，我们在主页左侧导航中添加存档页（archive）的链接，修改 header.ejs，在&amp;lt;li class=&amp;quot;active&amp;quot;&amp;gt;&amp;lt;a href=&amp;quot;/&amp;quo">
+  
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
@@ -166,7 +169,48 @@
 	<div class="mypage">		
 	  		
 
-	  	  
+	  <h3 id="增加存档页面"><a href="#增加存档页面" class="headerlink" title="增加存档页面"></a>增加存档页面<hr></h3><p>现在我们来给博客增加存档功能，当进入存档页时，按年份和日期的降序列出所有的文章。</p>
+<p>首先，我们在主页左侧导航中添加存档页（archive）的链接，修改 header.ejs，在<br><code class="pale">&lt;li class=&quot;active&quot;&gt;&lt;a href=&quot;/&quot;&gt;首页&lt;/a&gt;&lt;/li&gt;</code>下添加一行代码：</p>
+<pre class="default"><code class="default">
+&lt;li&gt;&lt;a href="/archive"&gt;归档&lt;/a&gt;&lt;/li&gt;
+</code></pre>
+
+<p>打开 post.js ，在最后添加以下代码：</p>
+<pre class="default"><code class="default">
+//返回所有文章存档信息
+Post.getArchive = function(callback) {
+  //打开数据库
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    //读取 posts 集合
+    db.collection('posts', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      //返回只包含 name、time、title 属性的文档组成的存档数组
+      collection.find({}, {
+        "name": 1,
+        "time": 1,
+        "title": 1
+      }).sort({
+        time: -1
+      }).toArray(function (err, docs) {
+        mongodb.close();
+        if (err) {
+          return callback(err);
+        }
+        callback(null, docs);
+      });
+    });
+  });
+};
+</code></pre>
+
+<p>接下来我们在 index.js 中添加<code class="pale">/archive</code>的路由规则。打开 index.js ，在<code class="pale">router.get(&#39;/u/:name&#39;)</code>前添加以下代码：</p>
+	  
 	</div>
 
 	<div>

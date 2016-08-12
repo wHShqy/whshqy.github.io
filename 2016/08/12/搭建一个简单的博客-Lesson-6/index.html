@@ -275,9 +275,37 @@ Comment = require('../models/comment.js');
   邮箱：&lt;input type="text" name="email" /&gt;&lt;br /&gt;
   网址：&lt;input type="text" name="website" value="http://" /&gt;&lt;br /&gt;
 &lt;% } %&gt;
-  &lt;textarea name="content" rows="5" cols="80"&gt;&lt;/textarea&gt;&lt;br /&gt;
+  &lt;textarea class="content" name="content" rows="5"&gt;&lt;/textarea&gt;&lt;br /&gt;
   &lt;input type="submit" value="留言" /&gt;
 &lt;/form&gt;
+</code></pre>
+
+<p>修改 public/stylesheets/style.css 如下：</p>
+<pre class="default"><code class="default">
+body {
+  padding-top: 60px;
+  padding-bottom: 40px;
+}
+
+.post, .content {
+  width: 926px;
+}
+
+.edit {
+  margin: 3px;
+  padding: 2px 5px;
+  border-radius: 3px;
+  background-color: #f3f3f3;
+  color: #333;
+  font-size: 13px;
+}
+
+.edit:hover {
+  text-decoration: none;
+  background-color: #f00;
+  color: #fff;
+  -webkit-transition: color .2s linear;
+}
 </code></pre>
 
 <p>注意：这里根据用户登录状态的不同，显示不同的提示信息。还需注意的一点是，未登录的用户在留言的时候， 网址 这一项需要加上<code class="pale">http://</code>前缀，否则在生成连接的时候会基于当前 url （本地是 localhost:3000）。</p>
