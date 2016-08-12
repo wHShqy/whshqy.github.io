@@ -554,7 +554,7 @@ router.post('/u/:name/:day/:title', function (req, res) {
 	<!-- display as entry -->	
 		<h3 class="title">
 			<div class="date"> 2016-08-12 </div>
-			<div class="article-title"><a href="/2016/08/12/搭建一个简单的博客-Lesson-5-1/" >搭建一个简单的博客 Lesson 5.1</a></div>						
+			<div class="article-title"><a href="/2016/08/12/搭建一个简单的博客-Lesson-5/" >搭建一个简单的博客 Lesson 5</a></div>						
 		</h3>
 	
 
@@ -706,8 +706,8 @@ Post.update = function(name, day, title, post, callback) {
 
 <p>打开 index.js ，在<code class="pale">router.get(&#39;/edit/:name/:day/:title&#39;)</code>后添加如下代码：</p>
 <pre class="default"><code class="default">
-router.get('/edit/:name/:day/:title', checkLogin);
-router.get('/edit/:name/:day/:title', function (req, res) {
+router.post('/edit/:name/:day/:title', checkLogin);
+router.post('/edit/:name/:day/:title', function (req, res) {
   var currentUser = req.session.user;
   Post.update(currentUser.name, req.params.day, req.params.title, req.body.post, function (err) {
     var url = encodeURI('/u/' + req.params.name + '/' + req.params.day + '/' + req.params.title);
@@ -799,7 +799,7 @@ router.get('/remove/:name/:day/:title', function (req, res) {
 
 	
 	</div>
-  <a type="button" href="/2016/08/12/搭建一个简单的博客-Lesson-5-1/#more" class="btn btn-default more">Read More</a>
+  <a type="button" href="/2016/08/12/搭建一个简单的博客-Lesson-5/#more" class="btn btn-default more">Read More</a>
 </div>
 
            
@@ -810,7 +810,7 @@ router.get('/remove/:name/:day/:title', function (req, res) {
 	<!-- display as entry -->	
 		<h3 class="title">
 			<div class="date"> 2016-08-12 </div>
-			<div class="article-title"><a href="/2016/08/12/搭建一个简单的博客-Lesson-4-1/" >搭建一个简单的博客 Lesson 4.1</a></div>						
+			<div class="article-title"><a href="/2016/08/12/搭建一个简单的博客-Lesson-4/" >搭建一个简单的博客 Lesson 4</a></div>						
 		</h3>
 	
 
@@ -959,7 +959,7 @@ router.get('/u/:name/:day/:title', function (req, res) {
 
 	
 	</div>
-  <a type="button" href="/2016/08/12/搭建一个简单的博客-Lesson-4-1/#more" class="btn btn-default more">Read More</a>
+  <a type="button" href="/2016/08/12/搭建一个简单的博客-Lesson-4/#more" class="btn btn-default more">Read More</a>
 </div>
 
            
@@ -970,7 +970,7 @@ router.get('/u/:name/:day/:title', function (req, res) {
 	<!-- display as entry -->	
 		<h3 class="title">
 			<div class="date"> 2016-08-11 </div>
-			<div class="article-title"><a href="/2016/08/11/搭建一个简单的博客-Lesson-3-1/" >搭建一个简单的博客 Lesson 3.1</a></div>						
+			<div class="article-title"><a href="/2016/08/11/搭建一个简单的博客-Lesson-3/" >搭建一个简单的博客 Lesson 3</a></div>						
 		</h3>
 	
 
@@ -1048,7 +1048,7 @@ router.post('/upload', upload.array('field1', 5), function(req, res, next) {
 
 	
 	</div>
-  <a type="button" href="/2016/08/11/搭建一个简单的博客-Lesson-3-1/#more" class="btn btn-default more">Read More</a>
+  <a type="button" href="/2016/08/11/搭建一个简单的博客-Lesson-3/#more" class="btn btn-default more">Read More</a>
 </div>
 
            
@@ -1059,7 +1059,7 @@ router.post('/upload', upload.array('field1', 5), function(req, res, next) {
 	<!-- display as entry -->	
 		<h3 class="title">
 			<div class="date"> 2016-08-11 </div>
-			<div class="article-title"><a href="/2016/08/11/搭建一个简单的博客-Lesson-2-1/" >搭建一个简单的博客 Lesson 2.1</a></div>						
+			<div class="article-title"><a href="/2016/08/11/搭建一个简单的博客-Lesson-2/" >搭建一个简单的博客 Lesson 2</a></div>						
 		</h3>
 	
 
@@ -1092,7 +1092,7 @@ docs.forEach(function (doc) {
 
 	
 	</div>
-  <a type="button" href="/2016/08/11/搭建一个简单的博客-Lesson-2-1/#more" class="btn btn-default more">Read More</a>
+  <a type="button" href="/2016/08/11/搭建一个简单的博客-Lesson-2/#more" class="btn btn-default more">Read More</a>
 </div>
 
            
@@ -1934,11 +1934,11 @@ router.get('/logout', function(req, res, next) {
       </li>
     
       <li>
-        <a href="/2016/08/12/搭建一个简单的博客-Lesson-5-1/" ><i class="fa fa-file-o"></i>搭建一个简单的博客 Lesson 5.1</a>
+        <a href="/2016/08/12/搭建一个简单的博客-Lesson-5/" ><i class="fa fa-file-o"></i>搭建一个简单的博客 Lesson 5</a>
       </li>
     
       <li>
-        <a href="/2016/08/12/搭建一个简单的博客-Lesson-4-1/" ><i class="fa fa-file-o"></i>搭建一个简单的博客 Lesson 4.1</a>
+        <a href="/2016/08/12/搭建一个简单的博客-Lesson-4/" ><i class="fa fa-file-o"></i>搭建一个简单的博客 Lesson 4</a>
       </li>
     
   </ul>

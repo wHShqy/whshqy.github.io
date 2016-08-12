@@ -308,8 +308,8 @@ router.post('/u/:name/:day/:title', function (req, res) {
     </entry>
     
     <entry>
-      <title><![CDATA[搭建一个简单的博客 Lesson 5.1]]></title>
-      <url>http://yoursite.com/2016/08/12/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8D%9A%E5%AE%A2-Lesson-5-1/</url>
+      <title><![CDATA[搭建一个简单的博客 Lesson 5]]></title>
+      <url>http://yoursite.com/2016/08/12/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8D%9A%E5%AE%A2-Lesson-5/</url>
       <content type="html"><![CDATA[<h3 id="增加编辑与删除功能"><a href="#增加编辑与删除功能" class="headerlink" title="增加编辑与删除功能"></a>增加编辑与删除功能<hr></h3><p>现在，我们来给博客添加编辑文章与删除文章的功能。</p>
 <p>我们设定：当一个用户在线时，只允许他在自己发表的文章页进行编辑或删除，编辑时，只能编辑文章内容，不能编辑文章标题。</p>
 <p>打开 style.css ，添加如下样式：</p>
@@ -453,8 +453,8 @@ Post.update = function(name, day, title, post, callback) {
 
 <p>打开 index.js ，在<code class="pale">router.get(&#39;/edit/:name/:day/:title&#39;)</code>后添加如下代码：</p>
 <pre class="default"><code class="default">
-router.get('/edit/:name/:day/:title', checkLogin);
-router.get('/edit/:name/:day/:title', function (req, res) {
+router.post('/edit/:name/:day/:title', checkLogin);
+router.post('/edit/:name/:day/:title', function (req, res) {
   var currentUser = req.session.user;
   Post.update(currentUser.name, req.params.day, req.params.title, req.body.post, function (err) {
     var url = encodeURI('/u/' + req.params.name + '/' + req.params.day + '/' + req.params.title);
@@ -547,8 +547,8 @@ router.get('/remove/:name/:day/:title', function (req, res) {
     </entry>
     
     <entry>
-      <title><![CDATA[搭建一个简单的博客 Lesson 4.1]]></title>
-      <url>http://yoursite.com/2016/08/12/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8D%9A%E5%AE%A2-Lesson-4-1/</url>
+      <title><![CDATA[搭建一个简单的博客 Lesson 4]]></title>
+      <url>http://yoursite.com/2016/08/12/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8D%9A%E5%AE%A2-Lesson-4/</url>
       <content type="html"><![CDATA[<h3 id="实现用户页面和文章页面"><a href="#实现用户页面和文章页面" class="headerlink" title="实现用户页面和文章页面"></a>实现用户页面和文章页面<hr></h3><p>现在，我们来给博客添加用户页面和文章页面。</p>
 <p>所谓用户页面就是当点击某个用户名链接时，跳转到：<code class="pale">域名/u/用户名</code>，并列出该用户的所有文章。<br>同理，文章页面就是当点击某篇文章标题时，跳转到：<code class="pale">域名/u/用户名/时间/文章名</code>，进入到该文章的页面（也许还有该文章<br>的评论等）。</p>
 <p>在开始之前我们需要做一个工作，打开 post.js ，将<code class="pale">Post.get</code>修改为<code class="pale">Post.getAll</code>，同时将 index.js 中<code class="pale">Post.get</code>修改为<br><code class="pale">Post.getAll</code>。在 post.js 最后添加如下代码：</p>
@@ -690,8 +690,8 @@ router.get('/u/:name/:day/:title', function (req, res) {
     </entry>
     
     <entry>
-      <title><![CDATA[搭建一个简单的博客 Lesson 3.1]]></title>
-      <url>http://yoursite.com/2016/08/11/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8D%9A%E5%AE%A2-Lesson-3-1/</url>
+      <title><![CDATA[搭建一个简单的博客 Lesson 3]]></title>
+      <url>http://yoursite.com/2016/08/11/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8D%9A%E5%AE%A2-Lesson-3/</url>
       <content type="html"><![CDATA[<h3 id="增加文件上传功能"><a href="#增加文件上传功能" class="headerlink" title="增加文件上传功能"></a>增加文件上传功能<hr></h3><p>一个完整的博客怎么能缺少图片呢？现在，我们来给博客添加文件上传功能，这样我们就可以使用 markdown 来链接图片了。</p>
 <p>我们使用express的第三方中间件 multer 实现文件上传功能。打开 package.json，在命令行输入：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ npm install --save multer</div></pre></td></tr></table></figure></p>
 <p>安装模块。然后修改 index.js，添加：</p>
@@ -762,8 +762,8 @@ router.post('/upload', upload.array('field1', 5), function(req, res, next) {
     </entry>
     
     <entry>
-      <title><![CDATA[搭建一个简单的博客 Lesson 2.1]]></title>
-      <url>http://yoursite.com/2016/08/11/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8D%9A%E5%AE%A2-Lesson-2-1/</url>
+      <title><![CDATA[搭建一个简单的博客 Lesson 2]]></title>
+      <url>http://yoursite.com/2016/08/11/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8D%9A%E5%AE%A2-Lesson-2/</url>
       <content type="html"><![CDATA[<h3 id="使用-Markdown"><a href="#使用-Markdown" class="headerlink" title="使用 Markdown"></a>使用 Markdown<hr></h3><p>现在我们来给博客添加支持 markdown 发表文章的功能。<br>假如你不还熟悉 markdown，请转到：<a href="http://wowubuntu.com/markdown/" target="_blank" rel="external">http://wowubuntu.com/markdown/</a></p>
 <p>打开命令行，输入：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ npm install --save markdown</div></pre></td></tr></table></figure></p>
 <p>安装 markdown 模块。</p>
