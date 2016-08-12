@@ -3,16 +3,15 @@
 <head>
   <meta charset="utf-8">
   
-  <title>搭建一个简单的博客 Lesson 8 | Whiteshadow&#39;s Blog</title>
+  <title>搭建一个简单的博客 Lesson 10 | Whiteshadow&#39;s Blog</title>
   <meta name="author" content="Whiteshadow">
   
-  <meta name="description" content="增加存档页面现在我们来给博客增加存档功能，当进入存档页时，按年份和日期的降序列出所有的文章。
-首先，我们在主页左侧导航中添加存档页（archive）的链接，修改 header.ejs，在&amp;lt;li class=&amp;quot;active&amp;quot;&amp;gt;&amp;lt;a href=&amp;quot;/&amp;quo">
+  <meta name="description" content="增加pv统计和留言统计">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="搭建一个简单的博客 Lesson 8"/>
+  <meta property="og:title" content="搭建一个简单的博客 Lesson 10"/>
   <meta property="og:site_name" content="Whiteshadow&#39;s Blog"/>
 
   
@@ -149,7 +148,7 @@
 
 	
 		<div class="page-header page-header-inverse ">		
-			<h1 class="title title-inverse "> 搭建一个简单的博客 Lesson 8</h1>
+			<h1 class="title title-inverse "> 搭建一个简单的博客 Lesson 10</h1>
 		</div>		
 	
 
@@ -169,103 +168,7 @@
 	<div class="mypage">		
 	  		
 
-	  <h3 id="增加存档页面"><a href="#增加存档页面" class="headerlink" title="增加存档页面"></a>增加存档页面<hr></h3><p>现在我们来给博客增加存档功能，当进入存档页时，按年份和日期的降序列出所有的文章。</p>
-<p>首先，我们在主页左侧导航中添加存档页（archive）的链接，修改 header.ejs，在<br><code class="pale">&lt;li class=&quot;active&quot;&gt;&lt;a href=&quot;/&quot;&gt;首页&lt;/a&gt;&lt;/li&gt;</code>下添加一行代码：</p>
-<pre class="default"><code class="default">
-&lt;li&gt;&lt;a href="/archive"&gt;归档&lt;/a&gt;&lt;/li&gt;
-</code></pre>
-
-<p>打开 post.js ，在最后添加以下代码：</p>
-<pre class="default"><code class="default">
-//返回所有文章存档信息
-Post.getArchive = function(callback) {
-  //打开数据库
-  mongodb.open(function (err, db) {
-    if (err) {
-      return callback(err);
-    }
-    //读取 posts 集合
-    db.collection('posts', function (err, collection) {
-      if (err) {
-        mongodb.close();
-        return callback(err);
-      }
-      //返回只包含 name、time、title 属性的文档组成的存档数组
-      collection.find({}, {
-        "name": 1,
-        "time": 1,
-        "title": 1
-      }).sort({
-        time: -1
-      }).toArray(function (err, docs) {
-        mongodb.close();
-        if (err) {
-          return callback(err);
-        }
-        callback(null, docs);
-      });
-    });
-  });
-};
-</code></pre>
-
-<p>接下来我们在 index.js 中添加<code class="pale">/archive</code>的路由规则。打开 index.js ，在<code class="pale">router.get(&#39;/u/:name&#39;)</code>前添加以下代码：</p>
-<pre class="default"><code class="default">
-router.get('/archive', function (req, res) {
-  Post.getArchive(function (err, posts) {
-    if (err) {
-      req.flash('error', err);
-      return res.redirect('/');
-    }
-    res.render('archive', {
-      title: '存档',
-      posts: posts
-    });
-  });
-});
-</code></pre>
-
-<p>在 views 文件夹下新建 archive.ejs 模版文件，添加如下代码：</p>
-<pre class="default"><code class="default">
-&lt;%- include header %&gt;
-&lt;%- include alert %&gt;
-&lt;ul class="archive"&gt;
-&lt;% var lastYear = 0 %&gt;
-&lt;% posts.forEach(function (post, index) { %&gt;
-  &lt;% if (lastYear != post.time.year) { %&gt;
-    &lt;li&gt;&lt;h3&gt;&lt;%= post.time.year %&gt;&lt;/h3&gt;&lt;/li&gt;
-  &lt;% lastYear=post.time.year } %&gt;
-  &lt;li&gt;&lt;time&gt;&lt;%= post.time.day %&gt;&lt;/time&gt;&lt;/li&gt;
-  &lt;li&gt;
-    &lt;a href="/u/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;&lt;%= post.title %&gt;&lt;/a&gt;
-  &lt;/li&gt;
-&lt;% }) %&gt;
-&lt;/ul&gt;
-&lt;%- include footer %&gt;
-</code></pre>
-
-<p>这里我们通过在模版中设置一个 lastYear 变量判断是否和上次已经显示的年份相同，相同则不再显示年份，不同则显示。</p>
-<p>最后，在 style.css 中添加如下样式：</p>
-<pre class="default"><code class="default">
-.archive {
-  list-style: none;
-  line-height: 28px;
-}
-
-.archive h3 {
-  margin: 0.5em 0;
-}
-
-.archive time {
-  float: left;
-  font-size: 14px;
-  color: #999999;
-  margin-right: 1.2em;
-}
-</code></pre>
-
-<p>现在，我们增加了文章的存档页面。</p>
-	  
+	  <h3 id="增加pv统计和留言统计"><a href="#增加pv统计和留言统计" class="headerlink" title="增加pv统计和留言统计"></a>增加pv统计和留言统计<hr></h3>	  
 	</div>
 
 	<div>
@@ -273,14 +176,14 @@ router.get('/archive', function (req, res) {
 	<div class="pagination">
 <ul class="pagination">
 	 
-				
-    	<li class="prev"><a href="/2016/08/12/搭建一个简单的博客-Lesson-9/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
-  		
+		
+          <li class="prev disabled"><a><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
+        
 
         <li><a href="/archives"><i class="fa fa-archive"></i>Archive</a></li>
 
 		
-		   <li class="next"><a href="/2016/08/12/搭建一个简单的博客-Lesson-7/" class="alignright next">Next<i class="fa fa-arrow-circle-o-right"></i></a></li>         
+		   <li class="next"><a href="/2016/08/12/搭建一个简单的博客-Lesson-9/" class="alignright next">Next<i class="fa fa-arrow-circle-o-right"></i></a></li>         
         
 	
 </ul>

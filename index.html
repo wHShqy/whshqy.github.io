@@ -190,9 +190,317 @@
 		
             
 		
+            
+		
+            
+		
         
         <!-- render other articles -->
         
+           
+			  
+	
+	<!-- display as entry -->	
+		<h3 class="title">
+			<div class="date"> 2016-08-12 </div>
+			<div class="article-title"><a href="/2016/08/12/搭建一个简单的博客-Lesson-10/" >搭建一个简单的博客 Lesson 10</a></div>						
+		</h3>
+	
+
+
+			  <div class="entry">
+  <div class="row">
+	
+	
+		<h3 id="增加pv统计和留言统计"><a href="#增加pv统计和留言统计" class="headerlink" title="增加pv统计和留言统计"></a>增加pv统计和留言统计<hr></h3>
+	
+	</div>
+  <a type="button" href="/2016/08/12/搭建一个简单的博客-Lesson-10/#more" class="btn btn-default more">Read More</a>
+</div>
+
+           
+		
+           
+			  
+	
+	<!-- display as entry -->	
+		<h3 class="title">
+			<div class="date"> 2016-08-12 </div>
+			<div class="article-title"><a href="/2016/08/12/搭建一个简单的博客-Lesson-9/" >搭建一个简单的博客 Lesson 9</a></div>						
+		</h3>
+	
+
+
+			  <div class="entry">
+  <div class="row">
+	
+	
+		<h3 id="增加标签和标签页面"><a href="#增加标签和标签页面" class="headerlink" title="增加标签和标签页面"></a>增加标签和标签页面<hr></h3><p>现在我们来给博客增加标签和标签页。</p>
+<p>我们设定：每篇文章最多有三个标签（少于三个也可以），当点击主页左侧标签页链接时，跳转到标签页并列出所有已存在标签；当点击任意一个标签链接时，跳转到该标签页并列出所有含有该标签的文章。<br><br></p>
+<h4 id="添加标签"><a href="#添加标签" class="headerlink" title="添加标签"></a>添加标签</h4><p><br><br>首先我们来实现给文章添加标签的功能。</p>
+<p>打开 post.ejs ，在<code class="pale">&lt;input type=&quot;text&quot; name=&quot;title&quot; /&gt;&lt;br /&gt;</code>后添加：</p>
+<pre class="default"><code class="default">
+标签：&lt;br /&gt;
+&lt;input type="text" name="tag1" /&gt;
+&lt;input type="text" name="tag2" /&gt;
+&lt;input type="text" name="tag3" /&gt;&lt;br /&gt;
+</code></pre>
+
+<p>打开 index.js ，将<code class="pale">router.post(&#39;/post&#39;)</code>内的：</p>
+<pre class="default"><code class="default">
+var currentUser = req.session.user,
+    post = new Post(currentUser.name, req.body.title, req.body.post);
+</code></pre>
+
+<p>修改为：</p>
+<pre class="default"><code class="default">
+var currentUser = req.session.user,
+    tags = [req.body.tag1, req.body.tag2, req.body.tag3],
+    post = new Post(currentUser.name, req.body.title, tags, req.body.post);
+</code></pre>
+
+<p>打开 post.js ，将：</p>
+<pre class="default"><code class="default">
+function Post(name, title, post) {
+  this.name = name;
+  this.title= title;
+  this.post = post;
+}
+</code></pre>
+
+<p>修改为：</p>
+<pre class="default"><code class="default">
+function Post(name, title, tags, post) {
+  this.name = name;
+  this.title = title;
+  this.tags = tags;
+  this.post = post;
+}
+</code></pre>
+
+<p>将：</p>
+<pre class="default"><code class="default">
+var post = {
+    name: this.name,
+    time: time,
+    title: this.title,
+    post: this.post,
+    comments: []
+};
+</code></pre>
+
+<p>修改为：</p>
+<pre class="default"><code class="default">
+var post = {
+    name: this.name,
+    time: time,
+    title: this.title,
+    tags: this.tags,
+    post: this.post,
+    comments: []
+};
+</code></pre>
+
+<p>现在我们就可以在发表文章的时候添加标签了。接下来我们修改 index.ejs 、 user.ejs 和 article.ejs 来显示文章的标签。</p>
+<p>修改 index.ejs 、 user.ejs 和 article.ejs，将：</p>
+<pre class="default"><code class="default">
+&lt;p class="info"&gt;
+  作者：&lt;a href="/u/&lt;%= post.name %&gt;"&gt;&lt;%= post.name %&gt;&lt;/a&gt; |
+  日期：&lt;%= post.time.minute %&gt;
+&lt;/p&gt;
+</code></pre>
+
+<p>修改为：</p>
+<pre class="default"><code class="default">
+&lt;p class="info"&gt;
+  作者：&lt;a href="/u/&lt;%= post.name %&gt;"&gt;&lt;%= post.name %&gt;&lt;/a&gt; |
+  日期：&lt;%= post.time.minute %&gt; |
+  标签：
+  &lt;% post.tags.forEach(function (tag, index) { %&gt;
+    &lt;% if (tag) { %&gt;
+      &lt;a class="tag" href="/tags/&lt;%= tag %&gt;"&gt;&lt;%= tag %&gt;&lt;/a&gt;
+    &lt;% } %&gt;
+  &lt;% }) %&gt;
+&lt;/p&gt;
+</code></pre>
+
+<p>最后，在 style.css 中添加如下样式：</p>
+<pre class="default"><code class="default">
+.tag {
+  background-color: #ff0000;
+  border-radius: 3px;
+  font-size: 14px;
+  color: #ffffff;
+  display: inline-block;
+  padding: 0 5px;
+  margin-bottom: 8px;
+}
+
+.tag:hover {
+  text-decoration: none;
+  background-color: #ffffff;
+  color: #000000;
+  -webkit-transition: color .2s linear;
+}
+</code></pre>
+
+<p>至此，我们给博客添加了标签功能。赶紧看看效果吧！<br><br></p>
+<h4 id="添加标签页"><a href="#添加标签页" class="headerlink" title="添加标签页"></a>添加标签页</h4><p><br><br>接下来我们给博客增加标签页。</p>
+<p>修改 header.ejs ，在<code class="pale">&lt;li&gt;&lt;a href=&quot;/archive&quot;&gt;归档&lt;/a&gt;&lt;/li&gt;</code>下一行添加：</p>
+<pre class="default"><code class="default">
+&lt;li&gt;&lt;a href="/tags"&gt;标签&lt;/a&gt;&lt;/li&gt;
+</code></pre>
+
+<p>修改 index.js ，在<code class="pale">router.get(&#39;/archive&#39;)</code>后添加如下代码：</p>
+<pre class="default"><code class="default">
+router.get('/tags', function (req, res) {
+  Post.getTags(function (err, posts) {
+    if (err) {
+      req.flash('error', err);
+      return res.redirect('/');
+    }
+    res.render('tags', {
+      title: '标签',
+      posts: posts
+    });
+  });
+});
+</code></pre>
+
+<p>打开 post.js ，在最后添加：</p>
+<pre class="default"><code class="default">
+//返回所有标签
+Post.getTags = function(callback) {
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    db.collection('posts', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      //distinct 用来找出给定键的所有不同值
+      collection.distinct("tags", function (err, docs) {
+        mongodb.close();
+        if (err) {
+          return callback(err);
+        }
+        callback(null, docs);
+      });
+    });
+  });
+};
+</code></pre>
+
+<p>注意：这里我们用了 distinct （详见《mongodb权威指南》）返回 tags 键的所有不同值，因为有时候我们发表文章的标签是一样的，所以这样避免了获取重复的标签。</p>
+<p>在 views 文件夹下新建 tags.ejs ，添加如下代码：</p>
+<pre class="default"><code class="default">
+&lt;%- include header %&gt;
+&lt;% posts.forEach(function (tag, index) { %&gt;
+  &lt;a class="tag" href="/tags/&lt;%= tag %&gt;"&gt;&lt;%= tag %&gt;&lt;/a&gt;
+&lt;% }) %&gt;
+&lt;%- include footer %&gt;
+</code></pre>
+
+<p>至此，我们就给博客添加了标签页。<br><br></p>
+<h4 id="添加特定标签的页面"><a href="#添加特定标签的页面" class="headerlink" title="添加特定标签的页面"></a>添加特定标签的页面</h4><p><br><br>现在我们来添加特定标签的页面，即当点击任意一个标签链接时，跳转到该标签页并列出所有含有该标签的文章信息。</p>
+<p>修改 post.js ，在最后添加如下代码：</p>
+<pre class="default"><code class="default">
+//返回含有特定标签的所有文章
+Post.getTag = function(tag, callback) {
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    db.collection('posts', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      //查询所有 tags 数组内包含 tag 的文档
+      //并返回只含有 name、time、title 组成的数组
+      collection.find({
+        "tags": tag
+      }, {
+        "name": 1,
+        "time": 1,
+        "title": 1
+      }).sort({
+        time: -1
+      }).toArray(function (err, docs) {
+        mongodb.close();
+        if (err) {
+          return callback(err);
+        }
+        callback(null, docs);
+      });
+    });
+  });
+};
+</code></pre>
+
+<p>修改 index.js ，在<code class="pale">router.get(&#39;/tags&#39;)</code>后添加如下代码：</p>
+<pre class="default"><code class="default">
+router.get('/tags/:tag', function (req, res) {
+  Post.getTag(req.params.tag, function (err, posts) {
+    if (err) {
+      req.flash('error',err);
+      return res.redirect('/');
+    }
+    res.render('tag', {
+      title: 'TAG:' + req.params.tag,
+      posts: posts
+    });
+  });
+});
+</code></pre>
+
+<p>在 views 文件夹下新建 tag.ejs ，添加如下代码：</p>
+<pre class="default"><code class="default">
+&lt;%- include header %&gt;
+&lt;ul class="archive"&gt;
+&lt;% var lastYear = 0 %&gt;
+&lt;% posts.forEach(function (post, index) { %&gt;
+  &lt;% if (lastYear != post.time.year) { %&gt;
+    &lt;li&gt;&lt;h3&gt;&lt;%= post.time.year %&gt;&lt;/h3&gt;&lt;/li&gt;
+  &lt;% lastYear = post.time.year } %&gt;
+    &lt;li&gt;&lt;time&gt;&lt;%= post.time.day %&gt;&lt;/time&gt;&lt;/li&gt;
+    &lt;li&gt;
+      &lt;a href="/u/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;&lt;%= post.title %&gt;&lt;/a&gt;
+    &lt;/li&gt;
+&lt;% }) %&gt;
+&lt;/ul&gt;
+&lt;%- include footer %&gt;
+</code></pre>
+
+<p>最后，别忘了修改 edit.ejs ，为了保持和 post.ejs 一致。将 edit.ejs 修改为：</p>
+<pre class="default"><code class="default">
+&lt;%- include header %&gt;
+&lt;form method="post"&gt;
+  标题：&lt;br /&gt;
+  &lt;input type="text" name="title" value="&lt;%= post.title %&gt;" disabled="disabled" /&gt;&lt;br /&gt;
+  标签：&lt;br /&gt;
+  &lt;input type="text" name="tag1" value="&lt;%= post.tags[0] %&gt;" disabled="disabled" /&gt;
+  &lt;input type="text" name="tag2" value="&lt;%= post.tags[1] %&gt;" disabled="disabled" /&gt;
+  &lt;input type="text" name="tag3" value="&lt;%= post.tags[2] %&gt;" disabled="disabled" /&gt;&lt;br /&gt;
+  正文：&lt;br /&gt;
+  &lt;textarea name="post" rows="20" cols="100"&gt;&lt;%= post.post %&gt;&lt;/textarea&gt;&lt;br /&gt;
+  &lt;input type="submit" value="保存修改" /&gt;
+&lt;/form&gt;
+&lt;%- include footer %&gt;
+</code></pre>
+
+<p>注意：这里我们设定了编辑时不能编辑文章的标题和标签。</p>
+<p>现在，我们的博客就增加了标签和标签页的功能。</p>
+
+	
+	</div>
+  <a type="button" href="/2016/08/12/搭建一个简单的博客-Lesson-9/#more" class="btn btn-default more">Read More</a>
+</div>
+
+           
+		
            
 			  
 	
@@ -249,6 +557,61 @@ Post.getArchive = function(callback) {
 </code></pre>
 
 <p>接下来我们在 index.js 中添加<code class="pale">/archive</code>的路由规则。打开 index.js ，在<code class="pale">router.get(&#39;/u/:name&#39;)</code>前添加以下代码：</p>
+<pre class="default"><code class="default">
+router.get('/archive', function (req, res) {
+  Post.getArchive(function (err, posts) {
+    if (err) {
+      req.flash('error', err);
+      return res.redirect('/');
+    }
+    res.render('archive', {
+      title: '存档',
+      posts: posts
+    });
+  });
+});
+</code></pre>
+
+<p>在 views 文件夹下新建 archive.ejs 模版文件，添加如下代码：</p>
+<pre class="default"><code class="default">
+&lt;%- include header %&gt;
+&lt;%- include alert %&gt;
+&lt;ul class="archive"&gt;
+&lt;% var lastYear = 0 %&gt;
+&lt;% posts.forEach(function (post, index) { %&gt;
+  &lt;% if (lastYear != post.time.year) { %&gt;
+    &lt;li&gt;&lt;h3&gt;&lt;%= post.time.year %&gt;&lt;/h3&gt;&lt;/li&gt;
+  &lt;% lastYear=post.time.year } %&gt;
+  &lt;li&gt;&lt;time&gt;&lt;%= post.time.day %&gt;&lt;/time&gt;&lt;/li&gt;
+  &lt;li&gt;
+    &lt;a href="/u/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;&lt;%= post.title %&gt;&lt;/a&gt;
+  &lt;/li&gt;
+&lt;% }) %&gt;
+&lt;/ul&gt;
+&lt;%- include footer %&gt;
+</code></pre>
+
+<p>这里我们通过在模版中设置一个 lastYear 变量判断是否和上次已经显示的年份相同，相同则不再显示年份，不同则显示。</p>
+<p>最后，在 style.css 中添加如下样式：</p>
+<pre class="default"><code class="default">
+.archive {
+  list-style: none;
+  line-height: 28px;
+}
+
+.archive h3 {
+  margin: 0.5em 0;
+}
+
+.archive time {
+  float: left;
+  font-size: 14px;
+  color: #999999;
+  margin-right: 1.2em;
+}
+</code></pre>
+
+<p>现在，我们增加了文章的存档页面。</p>
 
 	
 	</div>
@@ -1376,567 +1739,6 @@ router.get('/', function(req, res, next) {
 
            
 		
-           
-			  
-	
-	<!-- display as entry -->	
-		<h3 class="title">
-			<div class="date"> 2016-08-11 </div>
-			<div class="article-title"><a href="/2016/08/11/搭建一个简单的博客-Lesson-1-5/" >搭建一个简单的博客 Lesson 1.5</a></div>						
-		</h3>
-	
-
-
-			  <div class="entry">
-  <div class="row">
-	
-	
-		<h3 id="页面权限控制"><a href="#页面权限控制" class="headerlink" title="页面权限控制"></a>页面权限控制<hr></h3><p>我们虽然已经完成了用户注册与登陆的功能，但并不能阻止比如已经登陆的用户访问 localhost:3000/reg 页面，读者可亲自尝试下。为此，我们需要为页面设置访问权限。即注册和登陆页面应该阻止已登陆的用户访问，登出及后面我们将要实现的发表页只对已登录的用户开放。如何实现页面权限的控制呢？我们可以把用户登录状态的检查放到路由中间件中，在每个路径前增加路由中间件，即可实现页面权限控制。我们添加<code class="pale">checkNotLogin</code>和<code class="pale">checkLogin</code>函数来实现这个功能。</p>
-<pre class="default"><code class="default">
-function checkLogin(req, res, next) {
-  if (!req.session.user) {
-    req.flash('error', '未登录!');
-    res.redirect('/login');
-  }
-  next();
-}
-
-function checkNotLogin(req, res, next) {
-  if (req.session.user) {
-    req.flash('error', '已登录!');
-    res.redirect('back');//返回之前的页面
-  }
-  next();
-}
-</code></pre>
-
-<p><code class="pale">checkNotLogin</code>和<code class="pale">checkLogin</code>用来检测是否登陆，并通过<code class="pale">next()</code>转移控制权，检测到未登录则跳转到登录页，检测到已登录则跳转到前一个页面。</p>
-<p>最终 index.js 代码如下：</p>
-<pre class="default"><code class="default">
-var express = require('express'),
-    router = express.Router(),
-    crypto = require('crypto'),
-    User = require('../models/user.js');
-
-&#47;&#42; GET home page. &#42;&#47;
-router.get('/', function(req, res, next) {
-  res.render('index', { title: '首页' });
-});
-
-router.get('/reg', checkNotLogin);
-router.get('/reg', function(req, res, next) {
-  res.render('reg', { title: '注册' });
-});
-
-router.post('/reg', checkNotLogin);
-router.post('/reg', function(req, res, next) {
-  var name = req.body.name,
-      password = req.body.password,
-      password_re = req.body['password-repeat'];
-  //检验用户两次输入的密码是否一致
-  if (password_re != password) {
-    req.flash('error', '两次输入的密码不一致!');
-    return res.redirect('/reg');//返回注册页
-  }
-  //生成密码的 md5 值
-  var md5 = crypto.createHash('md5'),
-      password = md5.update(req.body.password).digest('hex');
-  var newUser = new User({
-      name: name,
-      password: password,
-      email: req.body.email
-  });
-  //检查用户名是否已经存在
-  User.get(newUser.name, function (err, user) {
-    if (err) {
-      req.flash('error', err);
-      return res.redirect('/');
-    }
-    if (user) {
-      req.flash('error', '用户已存在!');
-      return res.redirect('/reg');//返回注册页
-    }
-    //如果不存在则新增用户
-    newUser.save(function (err, user) {
-      if (err) {
-        req.flash('error', err);
-        return res.redirect('/reg');//注册失败返回主册页
-      }
-      req.session.user = newUser;//用户信息存入 session
-      req.flash('success', '注册成功!');
-      res.redirect('/');//注册成功后返回主页
-    });
-  });
-});
-
-router.get('/login', checkNotLogin);
-router.get('/login', function(req, res, next) {
-  res.render('login', { title: '登入' });
-});
-
-router.post('/login', checkNotLogin);
-router.post('/login', function(req, res, next) {
-  //生成密码的 md5 值
-  var md5 = crypto.createHash('md5'),
-      password = md5.update(req.body.password).digest('hex');
-  //检查用户是否存在
-  User.get(req.body.name, function (err, user) {
-    if (!user) {
-      req.flash('error', '用户不存在!');
-      return res.redirect('/login');//用户不存在则跳转到登录页
-    }
-    //检查密码是否一致
-    if (user.password != password) {
-      req.flash('error', '密码错误!');
-      return res.redirect('/login');//密码错误则跳转到登录页
-    }
-    //用户名密码都匹配后，将用户信息存入 session
-    req.session.user = user;
-    req.flash('success', '登陆成功!');
-    res.redirect('/');//登陆成功后跳转到主页
-  });
-});
-
-router.get('/post', checkLogin);
-router.get('/post', function(req, res, next) {
-  res.render('post', { title: '发表' });
-});
-
-router.post('/post', checkLogin);
-router.post('/post', function(req, res, next) {
-
-});
-
-router.get('/logout', checkLogin);
-router.get('/logout', function(req, res, next) {
-  req.session.user = null;
-  req.flash('success', '登出成功!');
-  res.redirect('/');//登出成功后跳转到主页
-});
-
-function checkLogin(req, res, next) {
-  if (!req.session.user) {
-    req.flash('error', '未登录!');
-    res.redirect('/login');
-  }
-  next();
-}
-
-function checkNotLogin(req, res, next) {
-  if (req.session.user) {
-    req.flash('error', '已登录!');
-    res.redirect('back');//返回之前的页面
-  }
-  next();
-}
-
-module.exports = router;
-</code></pre>
-
-	
-	</div>
-  <a type="button" href="/2016/08/11/搭建一个简单的博客-Lesson-1-5/#more" class="btn btn-default more">Read More</a>
-</div>
-
-           
-		
-           
-			  
-	
-	<!-- display as entry -->	
-		<h3 class="title">
-			<div class="date"> 2016-08-09 </div>
-			<div class="article-title"><a href="/2016/08/09/搭建一个简单的博客-Lesson-1-4/" >搭建一个简单的博客 Lesson 1.4</a></div>						
-		</h3>
-	
-
-
-			  <div class="entry">
-  <div class="row">
-	
-	
-		<h3 id="注册和登陆"><a href="#注册和登陆" class="headerlink" title="注册和登陆"></a>注册和登陆<hr></h3><p>我们已经准备好了数据库访问和会话的相关信息，接下来我们完成用户注册和登录功能。<br><br></p>
-<h4 id="页面设计"><a href="#页面设计" class="headerlink" title="页面设计"></a>页面设计</h4><p><br>首先我们来完成主页、登录页和注册页的页面设计。</p>
-<p>修改 views/index.ejs 如下：</p>
-<pre class="default"><code class="default">
-&lt;%- include header %&gt;
-&lt;div class="hero-unit"&gt;
-  &lt;h1&gt;欢迎来到 简易博客&lt;/h1&gt;
-  &lt;p&gt;简易博客 是一个基于 Node.js 的微博系统。&lt;/p&gt;
-  &lt;p&gt;
-    &lt;a class="btn btn-primary btn-large" href="/login"&gt;登录&lt;/a&gt;
-    &lt;a class="btn btn-large" href="/reg"&gt;立即注册&lt;/a&gt;
-  &lt;/p>
-&lt;/div&gt;
-&lt;%- include footer %&gt;
-</code></pre>
-
-<p>在 views 文件夹下新建 header.ejs，添加如下代码：</p>
-<pre class="default"><code class="default">
-&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-  &lt;head&gt;
-    &lt;meta charset="utf-8"&gt;
-    &lt;title&gt;&lt;%= title %&gt;&lt;/title&gt;
-    &lt;link rel="stylesheet" href="/stylesheets/bootstrap.css"&gt;
-    &lt;link rel="stylesheet" href="/stylesheets/style.css"&gt;
-  &lt;/head&gt;
-  &lt;body&gt;
-    &lt;div class="navbar navbar-fixed-top"&gt;
-      &lt;div class="navbar-inner"&gt;
-        &lt;div class="container"&gt;
-          &lt;a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"&gt;
-            &lt;span class="icon-bar"&gt;&lt;/span&gt;
-            &lt;span class="icon-bar"&gt;&lt;/span&gt;
-            &lt;span class="icon-bar"&gt;&lt;/span&gt;
-          &lt;/a&gt;
-          &lt;a class="brand" href="/"&gt;简易博客&lt;/a&gt;
-          &lt;div class="nav-collapse"&gt;
-            &lt;ul class="nav"&gt;
-              &lt;li class="active"&gt;&lt;a href="/"&gt;首页&lt;/a&gt;&lt;/li&gt;
-              &lt;li&gt;&lt;a href="/login"&gt;发表&lt;/a&gt;&lt;/li&gt;
-              &lt;li&gt;&lt;a href="/reg"&gt;登出&lt;/a&gt;&lt;/li&gt;
-            &lt;/ul&gt;
-          &lt;/div&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-    &lt;div id="container" class="container"&gt;
-</code></pre>
-
-<p>新建 footer.ejs，添加如下代码：</p>
-<pre class="default"><code class="default">
-      &lt;hr /&gt;
-      &lt;footer&gt;
-        &lt;p&gt;&lt;a href="http://whshqy.github.io/" target="&#95;blank"&gt;White Shadow&lt;/a&gt; @ 2015&lt;/p&gt;
-      &lt;/footer&gt;
-    &lt;/div&gt;
-  &lt;/body&gt;
-  &lt;script src="/javascripts/jquery.js"&gt;&lt;/script&gt;
-  &lt;script src="/javascripts/bootstrap.js"&gt;&lt;/script&gt;
-&lt;/html&gt;
-</code></pre>
-
-<p>修改 public/stylesheets/style.css 如下：</p>
-<pre class="default"><code class="default">
-body {
-  padding-top: 60px;
-  padding-bottom: 40px;
-}
-</code></pre>
-
-<p>运行 DEBUG=microblog:* npm start ，主页显示如下：<br><img src="/img/blog/1.3.png" alt=""></p>
-<p>接下来在 views 文件夹下新建 login.ejs，内容如下：</p>
-<pre class="default"><code class="default">
-&lt;%- include header %&gt;
-&lt;form class="form-horizontal" method="post"&gt;
-  &lt;fieldset&gt;
-    &lt;legend&gt;用户登入&lt;/legend&gt;
-    &lt;div class="control-group"&gt;
-      &lt;label class="control-label" for="name"&gt;用户名&lt;/label&gt;
-      &lt;div class="controls"&gt;
-        &lt;input type="text" class="input-xlarge" id="name" name="name"&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-    &lt;div class="control-group"&gt;
-      &lt;label class="control-label" for="password"&gt;口令&lt;/label&gt;
-      &lt;div class="controls"&gt;
-        &lt;input type="password" class="input-xlarge" id="password" name="password"&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-    &lt;div class="form-actions"&gt;
-      &lt;button type="submit" class="btn btn-primary"&gt;登入&lt;/button&gt;
-    &lt;/div&gt;
-  &lt;/fieldset&gt;
-&lt;/form&gt;
-&lt;%- include footer %&gt;
-</code></pre>
-
-<p>登录页面显示如下：<br><img src="/img/blog/1.4.png" alt=""><br>在 views 文件夹下新建 reg.ejs，内容如下：</p>
-<pre class="default"><code class="default">
-&lt;%- include header %&gt;
-&lt;form class="form-horizontal" method="post"&gt;
-  &lt;fieldset&gt;
-    &lt;legend&gt;用户注册&lt;/legend&gt;
-    &lt;div class="control-group"&gt;
-      &lt;label class="control-label" for="name"&gt;用户名&lt;/label&gt;
-      &lt;div class="controls"&gt;
-        &lt;input type="text" class="input-xlarge" id="name" name="name"&gt;
-        &lt;p class="help-block"&gt;你的账户名称,用于登录和显示。&lt;/p&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-    &lt;div class="control-group"&gt;
-      &lt;label class="control-label" for="password"&gt;口令&lt;/label&gt;
-      &lt;div class="controls"&gt;
-        &lt;input type="password" class="input-xlarge" id="password" name="password"&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-    &lt;div class="control-group"&gt;
-      &lt;label class="control-label" for="password-repeat"&gt;重复输入口令&lt;/label&gt;
-      &lt;div class="controls"&gt;
-        &lt;input type="password" class="input-xlarge" id="password-repeat" name="password-repeat"&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-    &lt;div class="control-group"&gt;
-      &lt;label class="control-label" for="email"&gt;邮箱&lt;/label&gt;
-      &lt;div class="controls"&gt;
-        &lt;input type="text" class="input-xlarge" id="email" name="email"&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-    &lt;div class="form-actions"&gt;
-      &lt;button type="submit" class="btn btn-primary"&gt;注册&lt;/button&gt;
-    &lt;/div&gt;
-  &lt;/fieldset&gt;
-&lt;/form&gt;
-&lt;%- include footer %&gt;
-</code></pre>
-
-<p>注册页面显示如下：<br><img src="/img/blog/1.5.png" alt=""><br>至此，未登录时的主页、注册页、登录页都已经完成。</p>
-<p>现在，启动我们的博客看看吧。<br><br></p>
-<h4 id="页面通知"><a href="#页面通知" class="headerlink" title="页面通知"></a>页面通知</h4><p><br><br>接下来我们实现用户的注册和登陆，在这之前我们需要引入 flash 模块来实现页面通知（即成功与错误信息的显示）的功能。</p>
-<p>什么是<strong> flash? </strong></p>
-<p>我们所说的 flash 即 connect-flash 模块<a href="https://github.com/jaredhanson/connect-flash" target="_blank" rel="external">(https://github.com/jaredhanson/connect-flash)</a>，flash 是一个在 session 中用于存储信息的特定区域。信息写入 flash ，下一次显示完毕后即被清除。典型的应用是结合重定向的功能，确保信息是提供给下一个被渲染的页面。</p>
-<p>在命令行输入：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ npm install --save connect-flash</div></pre></td></tr></table></figure></p>
-<p>安装 connect-flash 模块。修改 app.js ，在<code class="pale">var settings = require(&apos;./settings&apos;);</code>后添加：</p>
-<pre class="default"><code class="default">
-var flash = require('connect-flash');
-</code></pre>
-
-<p>在<code class="pale">app.set(&#39;view engine&#39;, &#39;ejs&#39;);</code>后添加：</p>
-<pre class="default"><code class="default">
-app.use(flash());
-</code></pre>
-
-<p>现在我们就可以使用 flash 功能了。<br><br></p>
-<h4 id="视图交互"><a href="#视图交互" class="headerlink" title="视图交互"></a>视图交互</h4><p><br><br>现在几乎已经万事俱备,只差视图的支持了。为了实现不同登录状态下页面呈现不同内容的功能,我们要创建动态视图助手,通过它我们才能在视图中访问会话中的用户数据。同时为了显示错误和成功的信息,也要在动态视图助手中增加响应的函数。</p>
-<p>打开 app.js,在<code class="pale">app.use(&#39;/&#39;, routes);</code>前添加以下代码:</p>
-<pre class="default"><code class="default">
-app.use(function(req, res, next){
-  console.log("app.usr local");
-  res.locals.user = req.session.user;
-  res.locals.post = req.session.post;
-  var error = req.flash('error');
-  res.locals.error = error.length ? error : null;<br>
-  var success = req.flash('success');
-  res.locals.success = success.length ? success : null;
-  next();
-});
-</code></pre>
-
-<p><br></p>
-<h4 id="注册响应"><a href="#注册响应" class="headerlink" title="注册响应"></a>注册响应</h4><p><br><br>前面我们已经完成了注册页，当然现在点击注册是没有效果的，因为我们还没有实现处理 POST 请求的功能，下面就来实现它。</p>
-<p>在 models 文件夹下新建 user.js，添加如下代码：</p>
-<pre class="default"><code class="default">
-var mongodb = require('./db');
-
-function User(user) {
-  this.name = user.name;
-  this.password = user.password;
-  this.email = user.email;
-};
-
-module.exports = User;
-
-//存储用户信息
-User.prototype.save = function(callback) {
-  //要存入数据库的用户文档
-  var user = {
-      name: this.name,
-      password: this.password,
-      email: this.email
-  };
-  //打开数据库
-  mongodb.open(function (err, db) {
-    if (err) {
-      return callback(err);//错误，返回 err 信息
-    }
-    //读取 users 集合
-    db.collection('users', function (err, collection) {
-      if (err) {
-        mongodb.close();
-        return callback(err);//错误，返回 err 信息
-      }
-      //将用户数据插入 users 集合
-      collection.insert(user, {
-        safe: true
-      }, function (err, user) {
-        mongodb.close();
-        if (err) {
-          return callback(err);//错误，返回 err 信息
-        }
-        callback(null, user[0]);//成功！err 为 null，并返回存储后的用户文档
-      });
-    });
-  });
-};
-
-//读取用户信息
-User.get = function(name, callback) {
-  //打开数据库
-  mongodb.open(function (err, db) {
-    if (err) {
-      return callback(err);//错误，返回 err 信息
-    }
-    //读取 users 集合
-    db.collection('users', function (err, collection) {
-      if (err) {
-        mongodb.close();
-        return callback(err);//错误，返回 err 信息
-      }
-      //查找用户名（name键）值为 name 一个文档
-      collection.findOne({
-        name: name
-      }, function (err, user) {
-        mongodb.close();
-        if (err) {
-          return callback(err);//失败！返回 err 信息
-        }
-        callback(null, user);//成功！返回查询的用户信息
-      });
-    });
-  });
-};
-</code></pre>
-
-<p>我们通过<code class="pale">User.prototype.save</code>实现了用户信息的存储，通过<code class="pale">User.get</code>实现了用户信息的读取。</p>
-<p>打开 index.js ，在<code class="pale">var router = express.Router();</code>后面添加如下代码：</p>
-<pre class="default"><code class="default">
-var crypto = require('crypto'),
-    User = require('../models/user.js');
-</code></pre>
-
-<p>通过<code class="pale">require()</code>引入 crypto 模块和 user.js 用户模型文件，crypto 是 Node.js 的一个核心模块，我们用它生成散列值来加密密码。</p>
-<p>修改 index.js 中<code class="pale">router.post(&#39;/reg&#39;, function(req, res, next)</code>如下：</p>
-<pre class="default"><code class="default">
-router.post('/reg', function(req, res, next) {
-  var name = req.body.name,
-      password = req.body.password,
-      password_re = req.body['password-repeat'];
-  //检验用户两次输入的密码是否一致
-  if (password_re != password) {
-    req.flash('error', '两次输入的密码不一致!');
-    return res.redirect('/reg');//返回注册页
-  }
-  //生成密码的 md5 值
-  var md5 = crypto.createHash('md5'),
-      password = md5.update(req.body.password).digest('hex');
-  var newUser = new User({
-      name: name,
-      password: password,
-      email: req.body.email
-  });
-  //检查用户名是否已经存在
-  User.get(newUser.name, function (err, user) {
-    if (err) {
-      req.flash('error', err);
-      return res.redirect('/');
-    }
-    if (user) {
-      req.flash('error', '用户已存在!');
-      return res.redirect('/reg');//返回注册页
-    }
-    //如果不存在则新增用户
-    newUser.save(function (err, user) {
-      if (err) {
-        req.flash('error', err);
-        return res.redirect('/reg');//注册失败返回主册页
-      }
-      req.session.user = newUser;//用户信息存入 session
-      req.flash('success', '注册成功!');
-      res.redirect('/');//注册成功后返回主页
-    });
-  });
-});
-</code></pre>
-
-<p>注意：我们把用户信息存储在了 session 里，以后就可以通过 req.session.user 读取用户信息。</p>
-<ul>
-<li><strong> req.body </strong> ： 就是 POST 请求信息解析过后的对象，例如我们要访问 POST 来的表单内的 name=&quot;password&quot; 域的值，只需访问 req.body[&#39;password&#39;] 或 req.body.password 即可。</li>
-<li><strong> res.redirect </strong> ： 重定向功能，实现了页面的跳转，更多关于 res.redirect 的信息请查阅：<br><a href="http://expressjs.com/api.html#res.redirect" target="_blank" rel="external">http://expressjs.com/api.html#res.redirect</a> 。</li>
-<li><strong> User </strong> ：在前面的代码中，我们直接使用了 User 对象。User 是一个描述数据的对象，即 MVC 架构中的模型。前面我们使用了许多视图和控制器，这是第一次接触到模型。与视图和控制器不同，模型是真正与数据打交道的工具，没有模型，网站就只是一个外壳，不能发挥真实的作用，因此它是框架中最根本的部分。</li>
-</ul>
-<p>现在，启动应用，在浏览器输入 localhost:3000 注册试试吧！注册成功后显示如下：<br><img src="/img/blog/1.8.png" alt=""></p>
-<p>这样我们并不知道是否注册成功，我们查看数据库中是否存入了用户的信息，打开一个命令行（保证数据库已打开的前提下），输入：<br><img src="/img/blog/1.9.png" alt=""></p>
-<p>可以看到，用户信息已经成功存入数据库。</p>
-<p>接下来我们实现当注册成功返回主页时，导航显示 HOME 、POST 、LOGOUT ，主体顶部显示 注册成功！ 字样，即添加 flash 的页面通知功能。</p>
-<p>修改 header.ejs，将<code class="pale">&lt;ul class=&quot;nav&quot;&gt;&lt;/ul&gt;</code>修改如下：</p>
-<pre class="default"><code class="default">
-&lt;ul class="nav"&gt;
-  &lt;li class="active"&gt;&lt;a href="/"&gt;首页&lt;/a&gt;&lt;/li&gt;
-  &lt;% if (user) { %&gt;
-    &lt;li&gt;&lt;a href="/post"&gt;发表&lt;/a&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;a href="/logout"&gt;登出&lt;/a&gt;&lt;/li&gt;
-  &lt;% } else { %&gt;
-    &lt;li&gt;&lt;a href="/login"&gt;登入&lt;/a&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;a href="/reg"&gt;注册&lt;/a&gt;&lt;/li&gt;
-  &lt;% } %&gt;
-&lt;/ul&gt;
-</code></pre>
-
-<p>在 views 文件夹下新建 alert.ejs，添加如下代码：</p>
-<pre class="default"><code class="default">
-&lt;% if (success) { %&gt;
-  &lt;div class="alert alert-success"&gt;&lt;%= success %&gt;&lt;/div&gt;
-&lt;% } %&gt;
-&lt;% if (error) { %&gt;
-  &lt;div class="alert alert-error"&gt;&lt;%= error %&gt;&lt;/div&gt;
-&lt;% } %&gt;
-</code></pre>
-
-<p>修改<code class="pale">views/index.ejs</code>、<code class="pale">views/login.ejs</code>、<code class="pale">views/reg.ejs</code>在<code class="pale">&lt;%- include header %&gt;</code>后添加：</p>
-<pre class="default"><code class="default">
-&lt;%- include alert %&gt;
-</code></pre>
-
-<p>现在运行我们的博客，注册成功后显示如下：<br><img src="/img/blog/1.10.png" alt=""></p>
-<p>我们通过对 session 的使用实现了对用户状态的检测，再根据不同的用户状态显示不同的导航信息。<br>简单解释一下流程：用户在注册成功后，把用户信息存入 session ，页面跳转到主页显示 注册成功！ 的字样。同时把 session 中的用户信息赋给变量 user ，在渲染 index.ejs 文件时通过检测 user 判断用户是否在线，根据用户状态的不同显示不同的导航信息。<br><br></p>
-<h4 id="登录与登出响应"><a href="#登录与登出响应" class="headerlink" title="登录与登出响应"></a>登录与登出响应</h4><p><br><br>现在我们来实现用户登录的功能。</p>
-<p>打开 index.js ，将<code class="pale">router.post(&#39;/login&#39;, function(req, res, next)</code>修改如下：</p>
-<pre class="default"><code class="default">
-router.post('/login', function(req, res, next) {
-  //生成密码的 md5 值
-  var md5 = crypto.createHash('md5'),
-      password = md5.update(req.body.password).digest('hex');
-  //检查用户是否存在
-  User.get(req.body.name, function (err, user) {
-    if (!user) {
-      req.flash('error', '用户不存在!');
-      return res.redirect('/login');//用户不存在则跳转到登录页
-    }
-    //检查密码是否一致
-    if (user.password != password) {
-      req.flash('error', '密码错误!');
-      return res.redirect('/login');//密码错误则跳转到登录页
-    }
-    //用户名密码都匹配后，将用户信息存入 session
-    req.session.user = user;
-    req.flash('success', '登陆成功!');
-    res.redirect('/');//登陆成功后跳转到主页
-  });
-});
-</code></pre>
-
-<p>接下来我们实现登出响应。修改<code class="pale">router.get(&#39;/logout&#39;, function(req, res, next)</code>如下：</p>
-<pre class="default"><code class="default">
-router.get('/logout', function(req, res, next) {
-  req.session.user = null;
-  req.flash('success', '登出成功!');
-  res.redirect('/');//登出成功后跳转到主页
-});
-</code></pre>
-
-<p>注意：通过把 req.session.user 赋值 null 丢掉 session 中用户的信息，实现用户的退出。</p>
-<p>登录后页面显示如下：<br><img src="/img/blog/1.11.png" alt=""></p>
-<p>登出后页面显示如下：<br><img src="/img/blog/1.12.png" alt=""></p>
-<p>至此，我们实现了用户注册与登陆的功能，并且根据用户登录状态显示不同的导航。</p>
-
-	
-	</div>
-  <a type="button" href="/2016/08/09/搭建一个简单的博客-Lesson-1-4/#more" class="btn btn-default more">Read More</a>
-</div>
-
-           
-		
 
 		</div>
 
@@ -1991,6 +1793,14 @@ router.get('/logout', function(req, res, next) {
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2016/08/12/搭建一个简单的博客-Lesson-10/" ><i class="fa fa-file-o"></i>搭建一个简单的博客 Lesson 10</a>
+      </li>
+    
+      <li>
+        <a href="/2016/08/12/搭建一个简单的博客-Lesson-9/" ><i class="fa fa-file-o"></i>搭建一个简单的博客 Lesson 9</a>
+      </li>
+    
+      <li>
         <a href="/2016/08/12/搭建一个简单的博客-Lesson-8/" ><i class="fa fa-file-o"></i>搭建一个简单的博客 Lesson 8</a>
       </li>
     
@@ -2000,14 +1810,6 @@ router.get('/logout', function(req, res, next) {
     
       <li>
         <a href="/2016/08/12/搭建一个简单的博客-Lesson-6/" ><i class="fa fa-file-o"></i>搭建一个简单的博客 Lesson 6</a>
-      </li>
-    
-      <li>
-        <a href="/2016/08/12/搭建一个简单的博客-Lesson-5/" ><i class="fa fa-file-o"></i>搭建一个简单的博客 Lesson 5</a>
-      </li>
-    
-      <li>
-        <a href="/2016/08/12/搭建一个简单的博客-Lesson-4/" ><i class="fa fa-file-o"></i>搭建一个简单的博客 Lesson 4</a>
       </li>
     
   </ul>

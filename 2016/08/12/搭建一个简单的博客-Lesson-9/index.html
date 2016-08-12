@@ -1,0 +1,568 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>搭建一个简单的博客 Lesson 9 | Whiteshadow&#39;s Blog</title>
+  <meta name="author" content="Whiteshadow">
+  
+  <meta name="description" content="增加标签和标签页面现在我们来给博客增加标签和标签页。
+我们设定：每篇文章最多有三个标签（少于三个也可以），当点击主页左侧标签页链接时，跳转到标签页并列出所有已存在标签；当点击任意一个标签链接时，跳转到该标签页并列出所有含有该标签的文章。
+添加标签首先我们来实现给文章添加标签的功能。
+打开 post.">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="搭建一个简单的博客 Lesson 9"/>
+  <meta property="og:site_name" content="Whiteshadow&#39;s Blog"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/css/themes/bootstrap.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/main.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+
+
+  <script id="barTmpl" type="text/x-jquery-tmpl">
+  <div class="cn-bar">
+    <div class="cn-nav">
+      <a href="#" class="cn-nav-prev">
+        <span>Previous</span>
+        <div style="background-image:url(${prevSource});"></div>
+      </a>
+      <a href="#" class="cn-nav-next">
+        <span>Next</span>
+        <div style="background-image:url(${nextSource});"></div>
+      </a>
+    </div><!-- cn-nav -->
+    <div class="cn-nav-content">
+      <div class="cn-nav-content-prev">
+        <span>上一个图像</span>
+        <h3>${prevTitle}</h3>
+      </div>
+      <div class="cn-nav-content-current">
+        <span>正在查看</span>
+        <h2>${currentTitle}</h2>
+      </div>
+      <div class="cn-nav-content-next">
+        <span>下一个图像</span>
+        <h3>${nextTitle}</h3>
+      </div>
+    </div><!-- cn-nav-content -->
+  </div><!-- cn-bar -->
+</script>
+
+</head>
+
+ <body>  
+  <header>
+  <nav id="text-nav" class="navbar navbar-inverse navbar-default navbar-fixed-top" role="navigation">
+      <div class="container p0">
+        <div id="templatmeo_header">
+          <div class="loading wave">
+            <a class="navbar-brand" href="/">Whiteshadow&#39;s Blog</a>
+          </div>
+        </div>
+      </div> <!-- container -->
+  </nav>
+  <div class="clearfix"></div>
+  <nav id="main-nav" class="navbar navbar-inverse navbar-default" role="navigation">
+      <div class="container p0">
+        <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+  	<span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <div class="collapse navbar-collapse nav-menu">
+  		<ul class="nav navbar-nav">
+  		  
+  		  <li>
+  			<a href="/archives" title="All the articles.">
+  			  <i class="fa fa-archive"></i>归档
+  			</a>
+  		  </li>
+  		  
+  		  <li>
+  			<a href="/categories" title="All the categories.">
+  			  <i class="fa fa-folder"></i>分类
+  			</a>
+  		  </li>
+  		  
+  		  <li>
+  			<a href="/tags" title="All the tags.">
+  			  <i class="fa fa-tags"></i>标签
+  			</a>
+  		  </li>
+  		  
+  		  <li>
+  			<a href="/about" title="About me.">
+  			  <i class="fa fa-user"></i>关于
+  			</a>
+  		  </li>
+  		  
+  		</ul>
+        </div>
+      </div> <!-- container -->
+  </nav>
+  <div class="clearfix"></div>
+  <div class="container p0">
+    <div id="cn-slideshow" class="cn-slideshow">
+      <div class="cn-images">
+        <img src="/img/large/1.jpg" alt="image01" title="Beautiful Scenery 1" data-thumb="/img/thumbs/1.jpg" style="display:block;" />
+        <img src="/img/large/2.jpg" alt="image02" title="Beautiful Scenery 2" data-thumb="/img/thumbs/2.jpg"/>
+        <img src="/img/large/3.jpg" alt="image03" title="Beautiful Scenery 3" data-thumb="/img/thumbs/3.jpg"/>
+        <img src="/img/large/4.jpg" alt="image04" title="Beautiful Scenery 4" data-thumb="/img/thumbs/4.jpg"/>
+      </div>
+    </div>
+    <script type="text/javascript" src="/js/jquery.tmpl.min.js"></script>
+  	<script type="text/javascript" src="/js/jquery.slideshow.js"></script>
+    <script type="text/javascript">
+      $(function() {
+  			$('#cn-slideshow').slideshow();
+      });
+    </script>
+  </div>
+</header>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+	
+		<div class="page-header page-header-inverse ">		
+			<h1 class="title title-inverse "> 搭建一个简单的博客 Lesson 9</h1>
+		</div>		
+	
+
+
+
+
+
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div id="top_meta"></div>
+	<div class="col-md-9">
+	
+
+	<!-- content -->
+	<div class="mypage">		
+	  		
+
+	  <h3 id="增加标签和标签页面"><a href="#增加标签和标签页面" class="headerlink" title="增加标签和标签页面"></a>增加标签和标签页面<hr></h3><p>现在我们来给博客增加标签和标签页。</p>
+<p>我们设定：每篇文章最多有三个标签（少于三个也可以），当点击主页左侧标签页链接时，跳转到标签页并列出所有已存在标签；当点击任意一个标签链接时，跳转到该标签页并列出所有含有该标签的文章。<br><br></p>
+<h4 id="添加标签"><a href="#添加标签" class="headerlink" title="添加标签"></a>添加标签</h4><p><br><br>首先我们来实现给文章添加标签的功能。</p>
+<p>打开 post.ejs ，在<code class="pale">&lt;input type=&quot;text&quot; name=&quot;title&quot; /&gt;&lt;br /&gt;</code>后添加：</p>
+<pre class="default"><code class="default">
+标签：&lt;br /&gt;
+&lt;input type="text" name="tag1" /&gt;
+&lt;input type="text" name="tag2" /&gt;
+&lt;input type="text" name="tag3" /&gt;&lt;br /&gt;
+</code></pre>
+
+<p>打开 index.js ，将<code class="pale">router.post(&#39;/post&#39;)</code>内的：</p>
+<pre class="default"><code class="default">
+var currentUser = req.session.user,
+    post = new Post(currentUser.name, req.body.title, req.body.post);
+</code></pre>
+
+<p>修改为：</p>
+<pre class="default"><code class="default">
+var currentUser = req.session.user,
+    tags = [req.body.tag1, req.body.tag2, req.body.tag3],
+    post = new Post(currentUser.name, req.body.title, tags, req.body.post);
+</code></pre>
+
+<p>打开 post.js ，将：</p>
+<pre class="default"><code class="default">
+function Post(name, title, post) {
+  this.name = name;
+  this.title= title;
+  this.post = post;
+}
+</code></pre>
+
+<p>修改为：</p>
+<pre class="default"><code class="default">
+function Post(name, title, tags, post) {
+  this.name = name;
+  this.title = title;
+  this.tags = tags;
+  this.post = post;
+}
+</code></pre>
+
+<p>将：</p>
+<pre class="default"><code class="default">
+var post = {
+    name: this.name,
+    time: time,
+    title: this.title,
+    post: this.post,
+    comments: []
+};
+</code></pre>
+
+<p>修改为：</p>
+<pre class="default"><code class="default">
+var post = {
+    name: this.name,
+    time: time,
+    title: this.title,
+    tags: this.tags,
+    post: this.post,
+    comments: []
+};
+</code></pre>
+
+<p>现在我们就可以在发表文章的时候添加标签了。接下来我们修改 index.ejs 、 user.ejs 和 article.ejs 来显示文章的标签。</p>
+<p>修改 index.ejs 、 user.ejs 和 article.ejs，将：</p>
+<pre class="default"><code class="default">
+&lt;p class="info"&gt;
+  作者：&lt;a href="/u/&lt;%= post.name %&gt;"&gt;&lt;%= post.name %&gt;&lt;/a&gt; |
+  日期：&lt;%= post.time.minute %&gt;
+&lt;/p&gt;
+</code></pre>
+
+<p>修改为：</p>
+<pre class="default"><code class="default">
+&lt;p class="info"&gt;
+  作者：&lt;a href="/u/&lt;%= post.name %&gt;"&gt;&lt;%= post.name %&gt;&lt;/a&gt; |
+  日期：&lt;%= post.time.minute %&gt; |
+  标签：
+  &lt;% post.tags.forEach(function (tag, index) { %&gt;
+    &lt;% if (tag) { %&gt;
+      &lt;a class="tag" href="/tags/&lt;%= tag %&gt;"&gt;&lt;%= tag %&gt;&lt;/a&gt;
+    &lt;% } %&gt;
+  &lt;% }) %&gt;
+&lt;/p&gt;
+</code></pre>
+
+<p>最后，在 style.css 中添加如下样式：</p>
+<pre class="default"><code class="default">
+.tag {
+  background-color: #ff0000;
+  border-radius: 3px;
+  font-size: 14px;
+  color: #ffffff;
+  display: inline-block;
+  padding: 0 5px;
+  margin-bottom: 8px;
+}
+
+.tag:hover {
+  text-decoration: none;
+  background-color: #ffffff;
+  color: #000000;
+  -webkit-transition: color .2s linear;
+}
+</code></pre>
+
+<p>至此，我们给博客添加了标签功能。赶紧看看效果吧！<br><br></p>
+<h4 id="添加标签页"><a href="#添加标签页" class="headerlink" title="添加标签页"></a>添加标签页</h4><p><br><br>接下来我们给博客增加标签页。</p>
+<p>修改 header.ejs ，在<code class="pale">&lt;li&gt;&lt;a href=&quot;/archive&quot;&gt;归档&lt;/a&gt;&lt;/li&gt;</code>下一行添加：</p>
+<pre class="default"><code class="default">
+&lt;li&gt;&lt;a href="/tags"&gt;标签&lt;/a&gt;&lt;/li&gt;
+</code></pre>
+
+<p>修改 index.js ，在<code class="pale">router.get(&#39;/archive&#39;)</code>后添加如下代码：</p>
+<pre class="default"><code class="default">
+router.get('/tags', function (req, res) {
+  Post.getTags(function (err, posts) {
+    if (err) {
+      req.flash('error', err);
+      return res.redirect('/');
+    }
+    res.render('tags', {
+      title: '标签',
+      posts: posts
+    });
+  });
+});
+</code></pre>
+
+<p>打开 post.js ，在最后添加：</p>
+<pre class="default"><code class="default">
+//返回所有标签
+Post.getTags = function(callback) {
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    db.collection('posts', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      //distinct 用来找出给定键的所有不同值
+      collection.distinct("tags", function (err, docs) {
+        mongodb.close();
+        if (err) {
+          return callback(err);
+        }
+        callback(null, docs);
+      });
+    });
+  });
+};
+</code></pre>
+
+<p>注意：这里我们用了 distinct （详见《mongodb权威指南》）返回 tags 键的所有不同值，因为有时候我们发表文章的标签是一样的，所以这样避免了获取重复的标签。</p>
+<p>在 views 文件夹下新建 tags.ejs ，添加如下代码：</p>
+<pre class="default"><code class="default">
+&lt;%- include header %&gt;
+&lt;% posts.forEach(function (tag, index) { %&gt;
+  &lt;a class="tag" href="/tags/&lt;%= tag %&gt;"&gt;&lt;%= tag %&gt;&lt;/a&gt;
+&lt;% }) %&gt;
+&lt;%- include footer %&gt;
+</code></pre>
+
+<p>至此，我们就给博客添加了标签页。<br><br></p>
+<h4 id="添加特定标签的页面"><a href="#添加特定标签的页面" class="headerlink" title="添加特定标签的页面"></a>添加特定标签的页面</h4><p><br><br>现在我们来添加特定标签的页面，即当点击任意一个标签链接时，跳转到该标签页并列出所有含有该标签的文章信息。</p>
+<p>修改 post.js ，在最后添加如下代码：</p>
+<pre class="default"><code class="default">
+//返回含有特定标签的所有文章
+Post.getTag = function(tag, callback) {
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    db.collection('posts', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      //查询所有 tags 数组内包含 tag 的文档
+      //并返回只含有 name、time、title 组成的数组
+      collection.find({
+        "tags": tag
+      }, {
+        "name": 1,
+        "time": 1,
+        "title": 1
+      }).sort({
+        time: -1
+      }).toArray(function (err, docs) {
+        mongodb.close();
+        if (err) {
+          return callback(err);
+        }
+        callback(null, docs);
+      });
+    });
+  });
+};
+</code></pre>
+
+<p>修改 index.js ，在<code class="pale">router.get(&#39;/tags&#39;)</code>后添加如下代码：</p>
+<pre class="default"><code class="default">
+router.get('/tags/:tag', function (req, res) {
+  Post.getTag(req.params.tag, function (err, posts) {
+    if (err) {
+      req.flash('error',err);
+      return res.redirect('/');
+    }
+    res.render('tag', {
+      title: 'TAG:' + req.params.tag,
+      posts: posts
+    });
+  });
+});
+</code></pre>
+
+<p>在 views 文件夹下新建 tag.ejs ，添加如下代码：</p>
+<pre class="default"><code class="default">
+&lt;%- include header %&gt;
+&lt;ul class="archive"&gt;
+&lt;% var lastYear = 0 %&gt;
+&lt;% posts.forEach(function (post, index) { %&gt;
+  &lt;% if (lastYear != post.time.year) { %&gt;
+    &lt;li&gt;&lt;h3&gt;&lt;%= post.time.year %&gt;&lt;/h3&gt;&lt;/li&gt;
+  &lt;% lastYear = post.time.year } %&gt;
+    &lt;li&gt;&lt;time&gt;&lt;%= post.time.day %&gt;&lt;/time&gt;&lt;/li&gt;
+    &lt;li&gt;
+      &lt;a href="/u/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;&lt;%= post.title %&gt;&lt;/a&gt;
+    &lt;/li&gt;
+&lt;% }) %&gt;
+&lt;/ul&gt;
+&lt;%- include footer %&gt;
+</code></pre>
+
+<p>最后，别忘了修改 edit.ejs ，为了保持和 post.ejs 一致。将 edit.ejs 修改为：</p>
+<pre class="default"><code class="default">
+&lt;%- include header %&gt;
+&lt;form method="post"&gt;
+  标题：&lt;br /&gt;
+  &lt;input type="text" name="title" value="&lt;%= post.title %&gt;" disabled="disabled" /&gt;&lt;br /&gt;
+  标签：&lt;br /&gt;
+  &lt;input type="text" name="tag1" value="&lt;%= post.tags[0] %&gt;" disabled="disabled" /&gt;
+  &lt;input type="text" name="tag2" value="&lt;%= post.tags[1] %&gt;" disabled="disabled" /&gt;
+  &lt;input type="text" name="tag3" value="&lt;%= post.tags[2] %&gt;" disabled="disabled" /&gt;&lt;br /&gt;
+  正文：&lt;br /&gt;
+  &lt;textarea name="post" rows="20" cols="100"&gt;&lt;%= post.post %&gt;&lt;/textarea&gt;&lt;br /&gt;
+  &lt;input type="submit" value="保存修改" /&gt;
+&lt;/form&gt;
+&lt;%- include footer %&gt;
+</code></pre>
+
+<p>注意：这里我们设定了编辑时不能编辑文章的标题和标签。</p>
+<p>现在，我们的博客就增加了标签和标签页的功能。</p>
+	  
+	</div>
+
+	<div>
+  	<center>
+	<div class="pagination">
+<ul class="pagination">
+	 
+				
+    	<li class="prev"><a href="/2016/08/12/搭建一个简单的博客-Lesson-10/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
+  		
+
+        <li><a href="/archives"><i class="fa fa-archive"></i>Archive</a></li>
+
+		
+		   <li class="next"><a href="/2016/08/12/搭建一个简单的博客-Lesson-8/" class="alignright next">Next<i class="fa fa-arrow-circle-o-right"></i></a></li>         
+        
+	
+</ul>
+</div>
+
+    </center>
+	</div>
+
+    <!-- share -->
+    
+        
+    <div class="bdsharebuttonbox">
+        <a href="#" class="bds_more" data-cmd="more"></a>
+        <a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+        <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+        <a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+        <a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+        <a href="#" class="bds_linkedin" data-cmd="linkedin" title="分享到linkedin"></a>
+        <a href="#" class="bds_evernotecn" data-cmd="evernotecn" title="分享到印象笔记"></a>
+        <a href="#" class="bds_youdao" data-cmd="youdao" title="分享到有道云笔记"></a>
+        <a href="#" class="bds_copy" data-cmd="copy" title="分享到复制网址"></a>
+    </div>
+    <script>
+        window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"24"},"share":{}};
+        with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+    </script>
+
+
+        
+
+    
+	
+	<!-- comment -->
+	
+<section id="comment">
+  <h2 class="title">Comments</h2>
+
+  
+</section>
+
+	</div> <!-- col-md-9/col-md-12 -->
+		
+	
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2016-08-12 
+	</div>
+	
+
+	<!-- categories -->
+    
+
+	<!-- tags -->
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+	</div>
+		
+
+</div><!-- row -->
+
+
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer> <p>
+  &copy; 2016 Whiteshadow
+  
+      with help from <a href="http://hexo.io/" target="_blank">Hexo</a> and <a href="http://getbootstrap.com/" target="_blank">Twitter Bootstrap</a>. Theme by <a href="http://github.com/wzpan/hexo-theme-freemind/">Freemind</a>.    
+</p> </footer>
+</div> <!-- container-narrow -->
+  
+
+
+  
+<a id="gotop" href="#">   
+  <span>▲</span> 
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+
+   <script type="text/javascript">      
+     var search_path = "search.xml";
+	 if (search_path.length == 0) {
+	 	search_path = "search.xml";
+	 }
+	 var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+   </script>
+
+</body>
+   </html>
