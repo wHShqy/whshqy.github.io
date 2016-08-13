@@ -3,16 +3,34 @@
 <head>
   <meta charset="utf-8">
   
-  <title>搭建一个简单的博客 Lesson 14 | Whiteshadow&#39;s Blog</title>
+  <title>搭建一个简单的博客 Lesson 17 | Whiteshadow&#39;s Blog</title>
   <meta name="author" content="Whiteshadow">
   
-  <meta name="description" content="增加头像现在我们来给博客添加用户头像，注册的用户根据注册时的邮箱获取 gravatar 头像，未注册的用户则根据留言填的邮箱获取 gravatar 头像。什么是 gravatar ？详情请戳：http://www.gravatar.com
-我们设定：在主页和用户页的文章标题右侧显示作者头像，在文章页">
+  <meta name="description" content="小结总结一下我们博客的功能：
+多人注册、登录
+发表文章（markdown）
+上传文件
+文章的编辑与删除
+存档
+标签
+分页
+留言（markdown）
+用户个人主页
+文章pv统计及留言统计
+头像
+标题关键字查询（支持有限的正则查询）
+友情链接
+404页面
+转载功能
+日志功能
+
+扩展阅读：
+Express">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="搭建一个简单的博客 Lesson 14"/>
+  <meta property="og:title" content="搭建一个简单的博客 Lesson 17"/>
   <meta property="og:site_name" content="Whiteshadow&#39;s Blog"/>
 
   
@@ -149,7 +167,7 @@
 
 	
 		<div class="page-header page-header-inverse ">		
-			<h1 class="title title-inverse "> 搭建一个简单的博客 Lesson 14</h1>
+			<h1 class="title title-inverse "> 搭建一个简单的博客 Lesson 17</h1>
 		</div>		
 	
 
@@ -169,165 +187,29 @@
 	<div class="mypage">		
 	  		
 
-	  <h3 id="增加头像"><a href="#增加头像" class="headerlink" title="增加头像"></a>增加头像<hr></h3><p>现在我们来给博客添加用户头像，注册的用户根据注册时的邮箱获取 gravatar 头像，未注册的用户则根据留言填的邮箱获取 gravatar 头像。<br>什么是 gravatar ？详情请戳：<a href="http://www.gravatar.com" target="_blank" rel="external">http://www.gravatar.com</a></p>
-<p>我们设定：在主页和用户页的文章标题右侧显示作者头像，在文章页面留言的人的头像显示在留言板左侧。</p>
-<p>我们需要用到 Node.js 中的 crypto 模块，之前已经引入过，所以这里可以直接使用。<br><br></p>
-<h4 id="添加已注册用户的头像"><a href="#添加已注册用户的头像" class="headerlink" title="添加已注册用户的头像"></a>添加已注册用户的头像</h4><p><br>打开 user.js ，在最上面添加一行代码：</p>
-<pre class="default"><code class="default">
-var crypto = require('crypto');
-</code></pre>
-
-<p>然后将<code class="pale">User.prototype.save</code>内的:</p>
-<pre class="default"><code class="default">
-var user = {
-    name: this.name,
-    password: this.password,
-    email: this.email
-};
-</code></pre>
-
-<p>修改为:</p>
-<pre class="default"><code class="default">
-var md5 = crypto.createHash('md5'),
-    email_MD5 = md5.update(this.email.toLowerCase()).digest('hex'),
-    head = "http://www.gravatar.com/avatar/" + email_MD5 + "?s=48";
-//要存入数据库的用户信息文档
-var user = {
-    name: this.name,
-    password: this.password,
-    email: this.email,
-    head: head
-};
-</code></pre>
-
-<p>这里我们在用户文档里添加了<code class="pale">head</code>键，方便后面使用。</p>
-<p>注意：需要把 email 转化成小写再编码。</p>
-<p>打开 index.js ，将<code class="pale">router.post(&#39;/post&#39;)</code>中的：</p>
-<pre class="default"><code class="default">
-post = new Post(currentUser.name, req.body.title, tags, req.body.post);
-</code></pre>
-
-<p>修改成：</p>
-<pre class="default"><code class="default">
-post = new Post(currentUser.name, currentUser.head, req.body.title, tags, req.body.post);
-</code></pre>
-
-<p>修改 post.js ，将：</p>
-<pre class="default"><code class="default">
-function Post(name, title, tags, post) {
-  this.name = name;
-  this.title = title;
-  this.tags = tags;
-  this.post = post;
-}
-</code></pre>
-
-<p>修改为：</p>
-<pre class="default"><code class="default">
-function Post(name, head, title, tags, post) {
-  this.name = name;
-  this.head = head;
-  this.title = title;
-  this.tags = tags;
-  this.post = post;
-}
-</code></pre>
-
-<p>将：</p>
-<pre class="default"><code class="default">
-var post = {
-    name: this.name,
-    time: time,
-    title:this.title,
-    tags: this.tags,
-    post: this.post,
-    comments: [],
-    pv: 0
-};
-</code></pre>
-
-<p>修改为：</p>
-<pre class="default"><code class="default">
-var post = {
-    name: this.name,
-    head: this.head,
-    time: time,
-    title:this.title,
-    tags: this.tags,
-    post: this.post,
-    comments: [],
-    pv: 0
-};
-</code></pre>
-
-<p>最后，修改 index.ejs 和 user.ejs ，在<code class="pale">&lt;/h2&gt;</code>后添加一行代码：</p>
-<pre class="default"><code class="default">
-&lt;a href="/u/&lt;%= post.name %&gt;"&gt;&lt;img src="&lt;%= post.head %&gt;" class="r_head" /&gt;&lt;/a&gt;
-</code></pre>
-
-<p>至此，我们实现了给已注册的用户添加头像的功能。<br><br></p>
-<h4 id="添加未注册用户的头像"><a href="#添加未注册用户的头像" class="headerlink" title="添加未注册用户的头像"></a>添加未注册用户的头像</h4><p><br>修改<code class="pale">router.post(&#39;/u/:name/:day/:title&#39;)</code>，将：</p>
-<pre class="default"><code class="default">
-var comment = {
-    name: req.body.name,
-    email: req.body.email,
-    website: req.body.website,
-    time: time,
-    content: req.body.content
-};
-</code></pre>
-
-<p>修改为：</p>
-<pre class="default"><code class="default">
-var md5 = crypto.createHash('md5'),
-    email_MD5 = md5.update(req.body.email.toLowerCase()).digest('hex'),
-    head = "http://www.gravatar.com/avatar/" + email_MD5 + "?s=48";
-var comment = {
-    name: req.body.name,
-    head: head,
-    email: req.body.email,
-    website: req.body.website,
-    time: time,
-    content: req.body.content
-};
-</code></pre>
-
-<p>打开 comment.ejs ，将：</p>
-<pre class="default"><code class="default">
-&lt;% post.comments.forEach(function (comment, index) { %&gt;
-  &lt;p&gt;&lt;a href="&lt;%= comment.website %&gt;"&gt;&lt;%= comment.name %&gt;&lt;/a&gt;
-  &lt;span class="info"&gt; 回复于 &lt;%= comment.time %&gt;&lt;/span&gt;&lt;/p&gt;
-  &lt;p&gt;&lt;%- comment.content %&gt;&lt;/p&gt;
-&lt;% }) %&gt;
-</code></pre>
-
-<p>修改为：</p>
-<pre class="default"><code class="default">
-&lt;% post.comments.forEach(function (comment, index) { %&gt;
-  &lt;div style="padding-left:4em"&gt;
-    &lt;p&gt;&lt;img src="&lt;%= comment.head %&gt;" class="l_head" /&gt;&lt;a href="&lt;%= comment.website %&gt;"&gt;&lt;%= comment.name %&gt;&lt;/a&gt;
-    &lt;span class="info"&gt; 回复于 &lt;%= comment.time %&gt;&lt;/span&gt;&lt;/p&gt;
-    &lt;p&gt;&lt;%- comment.content %&gt;&lt;/p&gt;
-  &lt;/div&gt;
-&lt;% }) %&gt;
-</code></pre>
-
-<p>最后，在 style.css 中添加两行样式：</p>
-<pre class="default"><code class="default">
-.l_head {
-  float: left;
-  margin-left: -4em;
-  box-shadow: 0px 1px 4px #888;
-}
-
-.r_head {
-  float: right;
-  margin-top: -2.5em;
-  box-shadow: 0px 1px 4px #888;
-}
-</code></pre>
-
-<p>现在，我们给博客添加了头像的功能。</p>
+	  <h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结<hr></h3><h4 id="总结一下我们博客的功能："><a href="#总结一下我们博客的功能：" class="headerlink" title="总结一下我们博客的功能："></a>总结一下我们博客的功能：</h4><ol>
+<li>多人注册、登录</li>
+<li>发表文章（markdown）</li>
+<li>上传文件</li>
+<li>文章的编辑与删除</li>
+<li>存档</li>
+<li>标签</li>
+<li>分页</li>
+<li>留言（markdown）</li>
+<li>用户个人主页</li>
+<li>文章pv统计及留言统计</li>
+<li>头像</li>
+<li>标题关键字查询（支持有限的正则查询）</li>
+<li>友情链接</li>
+<li>404页面</li>
+<li>转载功能</li>
+<li>日志功能<hr></li>
+</ol>
+<h4 id="扩展阅读："><a href="#扩展阅读：" class="headerlink" title="扩展阅读："></a>扩展阅读：</h4><ul>
+<li>Express ： <a href="http://expressjs.com/api.html" target="_blank" rel="external">http://expressjs.com/api.html</a></li>
+<li>Connect ： <a href="http://www.senchalabs.org/connect/" target="_blank" rel="external">http://www.senchalabs.org/connect/</a></li>
+<li>MongoDB ： <a href="http://mongodb.github.io/node-mongodb-native/contents.html" target="_blank" rel="external">http://mongodb.github.io/node-mongodb-native/contents.html</a><hr></li>
+</ul>
 	  
 	</div>
 
@@ -336,14 +218,14 @@ var comment = {
 	<div class="pagination">
 <ul class="pagination">
 	 
-				
-    	<li class="prev"><a href="/2016/08/12/搭建一个简单的博客-Lesson-15/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
-  		
+		
+          <li class="prev disabled"><a><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
+        
 
         <li><a href="/archives"><i class="fa fa-archive"></i>Archive</a></li>
 
 		
-		   <li class="next"><a href="/2016/08/12/搭建一个简单的博客-Lesson-13/" class="alignright next">Next<i class="fa fa-arrow-circle-o-right"></i></a></li>         
+		   <li class="next"><a href="/2016/08/12/搭建一个简单的博客-Lesson-16/" class="alignright next">Next<i class="fa fa-arrow-circle-o-right"></i></a></li>         
         
 	
 </ul>

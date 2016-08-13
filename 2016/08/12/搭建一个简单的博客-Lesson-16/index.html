@@ -3,16 +3,21 @@
 <head>
   <meta charset="utf-8">
   
-  <title>搭建一个简单的博客 Lesson 14 | Whiteshadow&#39;s Blog</title>
+  <title>搭建一个简单的博客 Lesson 16 | Whiteshadow&#39;s Blog</title>
   <meta name="author" content="Whiteshadow">
   
-  <meta name="description" content="增加头像现在我们来给博客添加用户头像，注册的用户根据注册时的邮箱获取 gravatar 头像，未注册的用户则根据留言填的邮箱获取 gravatar 头像。什么是 gravatar ？详情请戳：http://www.gravatar.com
-我们设定：在主页和用户页的文章标题右侧显示作者头像，在文章页">
+  <meta name="description" content="增加日志功能现在我们来给博客增加日志，实现访问日志（access.log）和错误日志（error.log）功能。
+前面我们介绍过，使用 Express 自带的 logger 中间件实现了终端日志的输出：
+
+app.use(logger(&#39;dev&#39;));
+
+
+那我们想把日志保存为日志文件该怎么办呢？很">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="搭建一个简单的博客 Lesson 14"/>
+  <meta property="og:title" content="搭建一个简单的博客 Lesson 16"/>
   <meta property="og:site_name" content="Whiteshadow&#39;s Blog"/>
 
   
@@ -149,7 +154,7 @@
 
 	
 		<div class="page-header page-header-inverse ">		
-			<h1 class="title title-inverse "> 搭建一个简单的博客 Lesson 14</h1>
+			<h1 class="title title-inverse "> 搭建一个简单的博客 Lesson 16</h1>
 		</div>		
 	
 
@@ -169,165 +174,35 @@
 	<div class="mypage">		
 	  		
 
-	  <h3 id="增加头像"><a href="#增加头像" class="headerlink" title="增加头像"></a>增加头像<hr></h3><p>现在我们来给博客添加用户头像，注册的用户根据注册时的邮箱获取 gravatar 头像，未注册的用户则根据留言填的邮箱获取 gravatar 头像。<br>什么是 gravatar ？详情请戳：<a href="http://www.gravatar.com" target="_blank" rel="external">http://www.gravatar.com</a></p>
-<p>我们设定：在主页和用户页的文章标题右侧显示作者头像，在文章页面留言的人的头像显示在留言板左侧。</p>
-<p>我们需要用到 Node.js 中的 crypto 模块，之前已经引入过，所以这里可以直接使用。<br><br></p>
-<h4 id="添加已注册用户的头像"><a href="#添加已注册用户的头像" class="headerlink" title="添加已注册用户的头像"></a>添加已注册用户的头像</h4><p><br>打开 user.js ，在最上面添加一行代码：</p>
+	  <h3 id="增加日志功能"><a href="#增加日志功能" class="headerlink" title="增加日志功能"></a>增加日志功能<hr></h3><p>现在我们来给博客增加日志，实现访问日志（access.log）和错误日志（error.log）功能。</p>
+<p>前面我们介绍过，使用 Express 自带的 logger 中间件实现了终端日志的输出：</p>
 <pre class="default"><code class="default">
-var crypto = require('crypto');
+app.use(logger('dev'));
 </code></pre>
 
-<p>然后将<code class="pale">User.prototype.save</code>内的:</p>
+<p>那我们想把日志保存为日志文件该怎么办呢？很简单，我们只需在以上代码的下一行添加：</p>
 <pre class="default"><code class="default">
-var user = {
-    name: this.name,
-    password: this.password,
-    email: this.email
-};
+app.use(logger({stream: accessLog}));
 </code></pre>
 
-<p>修改为:</p>
+<p>并在 var app = express(); 之前添加如下代码即可：</p>
 <pre class="default"><code class="default">
-var md5 = crypto.createHash('md5'),
-    email_MD5 = md5.update(this.email.toLowerCase()).digest('hex'),
-    head = "http://www.gravatar.com/avatar/" + email_MD5 + "?s=48";
-//要存入数据库的用户信息文档
-var user = {
-    name: this.name,
-    password: this.password,
-    email: this.email,
-    head: head
-};
+var fs = require('fs');
+var accessLog = fs.createWriteStream('access.log', {flags: 'a'});
+var errorLog = fs.createWriteStream('error.log', {flags: 'a'});
 </code></pre>
 
-<p>这里我们在用户文档里添加了<code class="pale">head</code>键，方便后面使用。</p>
-<p>注意：需要把 email 转化成小写再编码。</p>
-<p>打开 index.js ，将<code class="pale">router.post(&#39;/post&#39;)</code>中的：</p>
+<p>这样，我们每一次访问的请求信息，不仅显示在了命令行中，也都保存在了工程根目录下的 access.log 文件里。但 Express 并没有提供记录错误日志的功能，所以我们需自己写一个简单的中间件，在 app.use(express.static(path.join(&#95;&#95;dirname, ‘public’))); 下一行添加如下代码 ：</p>
 <pre class="default"><code class="default">
-post = new Post(currentUser.name, req.body.title, tags, req.body.post);
+app.use(function (err, req, res, next) {
+  var meta = '[' + new Date() + '] ' + req.url + '\n';
+  errorLog.write(meta + err.stack + '\n');
+  next();
+});
 </code></pre>
 
-<p>修改成：</p>
-<pre class="default"><code class="default">
-post = new Post(currentUser.name, currentUser.head, req.body.title, tags, req.body.post);
-</code></pre>
-
-<p>修改 post.js ，将：</p>
-<pre class="default"><code class="default">
-function Post(name, title, tags, post) {
-  this.name = name;
-  this.title = title;
-  this.tags = tags;
-  this.post = post;
-}
-</code></pre>
-
-<p>修改为：</p>
-<pre class="default"><code class="default">
-function Post(name, head, title, tags, post) {
-  this.name = name;
-  this.head = head;
-  this.title = title;
-  this.tags = tags;
-  this.post = post;
-}
-</code></pre>
-
-<p>将：</p>
-<pre class="default"><code class="default">
-var post = {
-    name: this.name,
-    time: time,
-    title:this.title,
-    tags: this.tags,
-    post: this.post,
-    comments: [],
-    pv: 0
-};
-</code></pre>
-
-<p>修改为：</p>
-<pre class="default"><code class="default">
-var post = {
-    name: this.name,
-    head: this.head,
-    time: time,
-    title:this.title,
-    tags: this.tags,
-    post: this.post,
-    comments: [],
-    pv: 0
-};
-</code></pre>
-
-<p>最后，修改 index.ejs 和 user.ejs ，在<code class="pale">&lt;/h2&gt;</code>后添加一行代码：</p>
-<pre class="default"><code class="default">
-&lt;a href="/u/&lt;%= post.name %&gt;"&gt;&lt;img src="&lt;%= post.head %&gt;" class="r_head" /&gt;&lt;/a&gt;
-</code></pre>
-
-<p>至此，我们实现了给已注册的用户添加头像的功能。<br><br></p>
-<h4 id="添加未注册用户的头像"><a href="#添加未注册用户的头像" class="headerlink" title="添加未注册用户的头像"></a>添加未注册用户的头像</h4><p><br>修改<code class="pale">router.post(&#39;/u/:name/:day/:title&#39;)</code>，将：</p>
-<pre class="default"><code class="default">
-var comment = {
-    name: req.body.name,
-    email: req.body.email,
-    website: req.body.website,
-    time: time,
-    content: req.body.content
-};
-</code></pre>
-
-<p>修改为：</p>
-<pre class="default"><code class="default">
-var md5 = crypto.createHash('md5'),
-    email_MD5 = md5.update(req.body.email.toLowerCase()).digest('hex'),
-    head = "http://www.gravatar.com/avatar/" + email_MD5 + "?s=48";
-var comment = {
-    name: req.body.name,
-    head: head,
-    email: req.body.email,
-    website: req.body.website,
-    time: time,
-    content: req.body.content
-};
-</code></pre>
-
-<p>打开 comment.ejs ，将：</p>
-<pre class="default"><code class="default">
-&lt;% post.comments.forEach(function (comment, index) { %&gt;
-  &lt;p&gt;&lt;a href="&lt;%= comment.website %&gt;"&gt;&lt;%= comment.name %&gt;&lt;/a&gt;
-  &lt;span class="info"&gt; 回复于 &lt;%= comment.time %&gt;&lt;/span&gt;&lt;/p&gt;
-  &lt;p&gt;&lt;%- comment.content %&gt;&lt;/p&gt;
-&lt;% }) %&gt;
-</code></pre>
-
-<p>修改为：</p>
-<pre class="default"><code class="default">
-&lt;% post.comments.forEach(function (comment, index) { %&gt;
-  &lt;div style="padding-left:4em"&gt;
-    &lt;p&gt;&lt;img src="&lt;%= comment.head %&gt;" class="l_head" /&gt;&lt;a href="&lt;%= comment.website %&gt;"&gt;&lt;%= comment.name %&gt;&lt;/a&gt;
-    &lt;span class="info"&gt; 回复于 &lt;%= comment.time %&gt;&lt;/span&gt;&lt;/p&gt;
-    &lt;p&gt;&lt;%- comment.content %&gt;&lt;/p&gt;
-  &lt;/div&gt;
-&lt;% }) %&gt;
-</code></pre>
-
-<p>最后，在 style.css 中添加两行样式：</p>
-<pre class="default"><code class="default">
-.l_head {
-  float: left;
-  margin-left: -4em;
-  box-shadow: 0px 1px 4px #888;
-}
-
-.r_head {
-  float: right;
-  margin-top: -2.5em;
-  box-shadow: 0px 1px 4px #888;
-}
-</code></pre>
-
-<p>现在，我们给博客添加了头像的功能。</p>
+<p>这样，当有错误发生时，就将错误信息保存到了根目录下的 error.log 文件夹里。</p>
+<p>至此，我们就给博客添加了日志的功能。</p>
 	  
 	</div>
 
@@ -337,13 +212,13 @@ var comment = {
 <ul class="pagination">
 	 
 				
-    	<li class="prev"><a href="/2016/08/12/搭建一个简单的博客-Lesson-15/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
+    	<li class="prev"><a href="/2016/08/12/搭建一个简单的博客-Lesson-17/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
   		
 
         <li><a href="/archives"><i class="fa fa-archive"></i>Archive</a></li>
 
 		
-		   <li class="next"><a href="/2016/08/12/搭建一个简单的博客-Lesson-13/" class="alignright next">Next<i class="fa fa-arrow-circle-o-right"></i></a></li>         
+		   <li class="next"><a href="/2016/08/12/搭建一个简单的博客-Lesson-15/" class="alignright next">Next<i class="fa fa-arrow-circle-o-right"></i></a></li>         
         
 	
 </ul>
