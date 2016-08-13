@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8">
   
-  <title>搭建一个简单的博客 Lesson 11 | Whiteshadow&#39;s Blog</title>
+  <title>搭建一个简单的博客 Lesson 13 | Whiteshadow&#39;s Blog</title>
   <meta name="author" content="Whiteshadow">
   
-  <meta name="description" content="增加文章检索功能现在我们来给博客增加文章检索功能，即根据关键字模糊查询文章标题，且字母不区分大小写。
-首先，我们修改 header.ejs ，在&amp;lt;/nav&amp;gt;前添加一行代码：
+  <meta name="description" content="增加404页面现在我们来给博客添加 404 页面，即当访问的路径都不匹配时，跳转到 404 页面。
+打开 index.js ，在function checkLogin(req, res, next){ … }前添加如下代码：
 
-&amp;lt;span&amp;gt;
-  &amp;lt;form action=&quot;/search&quot; method=&quot;GET&quot;&amp;gt">
+router.use(function (req, res) {
+  r">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="搭建一个简单的博客 Lesson 11"/>
+  <meta property="og:title" content="搭建一个简单的博客 Lesson 13"/>
   <meta property="og:site_name" content="Whiteshadow&#39;s Blog"/>
 
   
@@ -152,7 +152,7 @@
 
 	
 		<div class="page-header page-header-inverse ">		
-			<h1 class="title title-inverse "> 搭建一个简单的博客 Lesson 11</h1>
+			<h1 class="title title-inverse "> 搭建一个简单的博客 Lesson 13</h1>
 		</div>		
 	
 
@@ -172,97 +172,29 @@
 	<div class="mypage">		
 	  		
 
-	  <h3 id="增加文章检索功能"><a href="#增加文章检索功能" class="headerlink" title="增加文章检索功能"></a>增加文章检索功能<hr></h3><p>现在我们来给博客增加文章检索功能，即根据关键字模糊查询文章标题，且字母不区分大小写。</p>
-<p>首先，我们修改 header.ejs ，在<code class="pale">&lt;/nav&gt;</code>前添加一行代码：</p>
+	  <h3 id="增加404页面"><a href="#增加404页面" class="headerlink" title="增加404页面"></a>增加404页面<hr></h3><p>现在我们来给博客添加 404 页面，即当访问的路径都不匹配时，跳转到 404 页面。</p>
+<p>打开 index.js ，在<code class="pale">function checkLogin(req, res, next){ … }</code>前添加如下代码：</p>
 <pre class="default"><code class="default">
-&lt;span&gt;
-  &lt;form action="/search" method="GET"&gt;
-    &lt;input type="text" name="keyword" placeholder="SEARCH" class="search" /&gt;
-  &lt;/form&gt;
-&lt;/span&gt;
-</code></pre>
-
-<p>在 style.css 中添加一行样式：</p>
-<pre class="default"><code class="default">
-.search {
-  border: 0;
-  width: 6em;
-  text-align: center;
-  font-size: 1em;
-  margin: 0.5em 0;
-}
-</code></pre>
-
-<p>打开 post.js ，在最后添加如下代码：</p>
-<pre class="default"><code class="default">
-//返回通过标题关键字查询的所有文章信息
-Post.search = function(keyword, callback) {
-  mongodb.open(function (err, db) {
-    if (err) {
-      return callback(err);
-    }
-    db.collection('posts', function (err, collection) {
-      if (err) {
-        mongodb.close();
-        return callback(err);
-      }
-      var pattern = new RegExp(keyword, "i");
-      collection.find({
-        "title": pattern
-      }, {
-        "name": 1,
-        "time": 1,
-        "title": 1
-      }).sort({
-        time: -1
-      }).toArray(function (err, docs) {
-        mongodb.close();
-        if (err) {
-         return callback(err);
-        }
-        callback(null, docs);
-      });
-    });
-  });
-};
-</code></pre>
-
-<p>修改 index.js ，在<code class="pale">router.get(&#39;/u/:name&#39;)</code>前添加如下代码：</p>
-<pre class="default"><code class="default">
-router.get('/search', function (req, res) {
-  Post.search(req.query.keyword, function (err, posts) {
-    if (err) {
-      req.flash('error', err);
-      return res.redirect('/');
-    }
-    res.render('search', {
-      title: "SEARCH:" + req.query.keyword,
-      posts: posts
-    });
-  });
+router.use(function (req, res) {
+  res.render("404");
 });
 </code></pre>
 
-<p>在 views 文件夹下新建 search.ejs ，添加如下代码：</p>
+<p>在 views 文件夹下新建 404.ejs ，添加如下代码：</p>
 <pre class="default"><code class="default">
-&lt;%- include header %&gt;
-&lt;ul class="archive"&gt;
-&lt;% var lastYear = 0 %&gt;
-&lt;% posts.forEach(function (post, index) { %&gt;
-  &lt;% if(lastYear != post.time.year) { %&gt;
-    &lt;li&gt;&lt;h3&gt;&lt;%= post.time.year %&gt;&lt;/h3&gt;&lt;/li&gt;
-  &lt;% lastYear = post.time.year } %&gt;
-    &lt;li&gt;&lt;time&gt;&lt;%= post.time.day %&gt;&lt;/time&gt;&lt;/li&gt;
-    &lt;li&gt;
-      &lt;a href="/u/&lt;%= post.name %&gt;/&lt;%= post.time.day %&gt;/&lt;%= post.title %&gt;"&gt;&lt;%= post.title %&gt;&lt;/a&gt;
-    &lt;/li&gt;
-&lt;% }) %&gt;
-&lt;/ul&gt;
-&lt;%- include footer %&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;Blog&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;script type="text/javascript" src="http://www.qq.com/404/search_children.js" charset="utf-8"&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
 
-<p>注意：目前为止，你会发现 tag.ejs 和 search.ejs 代码完全一样，因为我们都用相同的布局。这也突出了模版的优点之一 —— 可以重复利用，但我们这里并没有把这两个文件用一个代替，因为每一个文件的名字代表了不同的意义。</p>
-<p>现在，我们给博客添加了文章检索功能。</p>
+<p>现在，我们给博客添加了 404 页面。</p>
 	  
 	</div>
 
@@ -272,13 +204,13 @@ router.get('/search', function (req, res) {
 <ul class="pagination">
 	 
 				
-    	<li class="prev"><a href="/2016/08/12/搭建一个简单的博客-Lesson-12/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
+    	<li class="prev"><a href="/2016/08/12/搭建一个简单的博客-Lesson-14/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
   		
 
         <li><a href="/archives"><i class="fa fa-archive"></i>Archive</a></li>
 
 		
-		   <li class="next"><a href="/2016/08/12/搭建一个简单的博客-Lesson-10/" class="alignright next">Next<i class="fa fa-arrow-circle-o-right"></i></a></li>         
+		   <li class="next"><a href="/2016/08/12/搭建一个简单的博客-Lesson-12/" class="alignright next">Next<i class="fa fa-arrow-circle-o-right"></i></a></li>         
         
 	
 </ul>
