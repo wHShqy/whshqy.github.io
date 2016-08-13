@@ -882,7 +882,7 @@ router.use(function (req, res) {
 &lt;li&gt;&lt;a href=&quot;/links&quot;&gt;友情链接&lt;/a&gt;&lt;/li&gt;
 </code></pre>
 
-<p>修改 index.js ，在<code class="pale">router.get(‘/search’)</code>前添加如下代码：</p>
+<p>修改 index.js ，在<code class="pale">router.get(&#39;/search&#39;)</code>前添加如下代码：</p>
 <pre class="default"><code class="default">
 router.get('/links', function (req, res) {
   res.render('links', { title: '友情链接' });
@@ -944,7 +944,12 @@ router.get('/links', function (req, res) {
   width: 6em;
   text-align: center;
   font-size: 1em;
-  margin: 0.5em 0;
+  margin: 5px 0 0 !important;
+  float: right;
+}
+
+.nav-collapse form {
+  margin-bottom: 0;
 }
 </code></pre>
 
